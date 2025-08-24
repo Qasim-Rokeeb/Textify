@@ -18,6 +18,7 @@ const CleanTextInputSchema = z.object({
   normalizeQuotes: z.boolean().optional().describe('Whether to normalize curly quotes to straight quotes.'),
   trimTrailingSpaces: z.boolean().optional().describe('Whether to trim trailing whitespace from each line.'),
   convertToLowercase: z.boolean().optional().describe('Whether to convert the entire text to lowercase.'),
+  convertToSentenceCase: z.boolean().optional().describe('Whether to convert the text to sentence case.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -62,6 +63,9 @@ Also, trim any trailing whitespace from the end of each line.
 {{/if}}
 {{#if convertToLowercase}}
 Also, convert the entire text to lowercase.
+{{/if}}
+{{#if convertToSentenceCase}}
+Also, convert the text to sentence case, where the first letter of each sentence is capitalized.
 {{/if}}
 
 Original Text: {{{text}}}
