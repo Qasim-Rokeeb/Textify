@@ -24,7 +24,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check } from "lucide-react";
-import { SplitView } from "@/components/ui/split-view";
+import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
   Tooltip,
@@ -44,15 +44,14 @@ export default function TextifyPage() {
   const { toast } = useToast();
   const cleanedTextRef = useRef<HTMLDivElement>(null);
   const originalTextRef = useRef<HTMLTextAreaElement>(null);
-  const [cleanedPanelHeight, setCleanedPanelHeight] = useState('auto');
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
-  const [animationKey, setAnimationKey] = useState(0);
   const [openCommand, setOpenCommand] = useState(false);
   const { setTheme } = useTheme();
   const [isShaking, setIsShaking] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
+  const [showSlider, setShowSlider] = useState(false);
 
 
   useEffect(() => {
@@ -75,29 +74,22 @@ export default function TextifyPage() {
     setCurrentYear(new Date().getFullYear());
   }, []);
 
-  useEffect(() => {
-    if (cleanedTextRef.current) {
-      cleanedTextRef.current.scrollTop = cleanedTextRef.current.scrollHeight;
-    }
-  }, [diff]);
-
-  useEffect(() => {
-    if (originalTextRef.current && !isLoading) {
-      const height = originalTextRef.current.offsetHeight;
-      setCleanedPanelHeight(`${height}px`);
-    }
-  }, [originalText, isLoading]);
-
   const handleRevert = useCallback(() => {
     if (lastClean) {
       setOriginalText(lastClean.originalText);
       setCleanedText(lastClean.cleanedText);
       setDiff(lastClean.diff);
       setLastClean(null); // Only allow one level of undo
+      setShowSlider(true);
       toast({
         title: "Reverted",
         description: "The last cleaning action has been undone.",
       });
+    } else {
+      setOriginalText("");
+      setCleanedText("");
+      setDiff([]);
+      setShowSlider(false);
     }
   }, [lastClean, toast]);
 
@@ -113,15 +105,12 @@ export default function TextifyPage() {
     setLastClean({ originalText, cleanedText, diff });
     setCleanedText("");
     setDiff([]);
+    setShowSlider(false);
     try {
-      if (originalTextRef.current) {
-        const height = originalTextRef.current.offsetHeight;
-        setCleanedPanelHeight(`${height}px`);
-      }
       const result = await cleanText({ text: originalText });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
-      setAnimationKey(prev => prev + 1);
+      setShowSlider(true);
     } catch (error) {
       console.error("Error cleaning text:", error);
       toast({
@@ -170,7 +159,6 @@ export default function TextifyPage() {
 
   const handlePaste = () => {
     if (!autoCleanOnPaste) return;
-    // We need a slight delay to allow the pasted text to be set in the state
     setTimeout(debouncedCleanText, 50);
   };
   
@@ -181,6 +169,15 @@ export default function TextifyPage() {
       }
     };
   }, []);
+
+  const handleScroll = (scrollTop: number) => {
+    if (originalTextRef.current) {
+        originalTextRef.current.scrollTop = scrollTop;
+    }
+    if (cleanedTextRef.current) {
+        (cleanedTextRef.current as any).setScrollTop?.(scrollTop);
+    }
+  };
 
   const calculateReadingTime = (wordCount: number) => {
     const wordsPerMinute = 200;
@@ -221,75 +218,87 @@ export default function TextifyPage() {
 
           <Card className={cn("w-full shadow-lg rounded-lg", isShaking && 'animate-shake')}>
             <CardContent className="p-6">
-              <SplitView>
-                <div className="flex flex-col space-y-2 h-full">
-                  <Label htmlFor="original-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
-                    Original Text
-                  </Label>
-                  <Textarea
-                    id="original-text"
-                    ref={originalTextRef}
-                    placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean)"
-                    value={originalText}
-                    onChange={(e) => setOriginalText(e.target.value)}
-                    onKeyDown={handleKeyDown}
-                    onPaste={handlePaste}
-                    className="flex-grow resize-none font-mono text-base"
-                  />
-                  <div className="text-xs text-muted-foreground flex justify-end gap-4">
-                      <span>{originalReadingTime}</span>
-                      <span>{originalWordCount} {originalWordCount === 1 ? 'word' : 'words'}</span>
-                      <span>{originalCharCount} {originalCharCount === 1 ? 'character' : 'characters'}</span>
+                <div className="flex flex-col space-y-2">
+                  <div className="grid grid-cols-2">
+                      <Label htmlFor="original-text" className="text-base font-medium">
+                          Original Text
+                      </Label>
+                      <Label htmlFor="cleaned-text" className={cn("text-base font-medium", !showSlider && 'invisible')}>
+                          Cleaned Text
+                      </Label>
                   </div>
-                </div>
                 
-                <div className="flex flex-col space-y-2 h-full">
-                  <Label htmlFor="cleaned-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
-                    Cleaned Text
-                  </Label>
-                  {isLoading ? (
-                     <div style={{ height: cleanedPanelHeight }} className="flex flex-col space-y-3 rounded-md border bg-muted/50 p-4">
+                 {isLoading ? (
+                    <div className="flex flex-col space-y-3 rounded-md border bg-muted/50 p-4 min-h-[120px]">
                       <Skeleton className="h-4 w-5/6" />
                       <Skeleton className="h-4 w-full" />
                       <Skeleton className="h-4 w-4/6" />
-                      <Skeleton className="h-4 w-full" />
-                      <Skeleton className="h-4 w-3/6" />
                     </div>
+                  ) : showSlider && !isShaking ? (
+                     <BeforeAfterSlider
+                        onScroll={handleScroll}
+                        before={
+                           <Textarea
+                              id="original-text"
+                              ref={originalTextRef}
+                              value={originalText}
+                              readOnly
+                              className="flex-grow resize-none font-mono text-base bg-card"
+                            />
+                        }
+                        after={
+                          <div
+                            id="cleaned-text"
+                            ref={cleanedTextRef}
+                            className="flex-grow resize-none bg-muted/50 font-sans rounded-md border border-input p-2 text-base break-words whitespace-pre-wrap overflow-y-auto"
+                           >
+                            {diff.length > 0 ? (
+                              <>
+                                {diff.map((part, index) => (
+                                  <span
+                                    key={index}
+                                    className={
+                                      part.removed
+                                        ? "bg-red-200/50 text-red-700 line-through dark:bg-red-900/50 dark:text-red-400"
+                                        : ""
+                                    }
+                                  >
+                                    {part.value}
+                                  </span>
+                                ))}
+                              </>
+                            ) : (
+                              <div className="text-muted-foreground">Your cleaned text will appear here.</div>
+                            )}
+                          </div>
+                        }
+                      />
                   ) : (
-                    <div
-                      id="cleaned-text"
-                      key={animationKey}
-                      ref={cleanedTextRef}
-                      className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto font-sans rounded-md border border-input p-2 text-base break-words whitespace-pre-wrap"
-                      style={{ animation: 'fadeIn 0.5s ease-in-out' }}
-                    >
-                      {diff.length > 0 ? (
-                        <>
-                          {diff.map((part, index) => (
-                            <span
-                              key={index}
-                              className={
-                                part.removed
-                                  ? "bg-red-200/50 text-red-700 line-through dark:bg-red-900/50 dark:text-red-400"
-                                  : ""
-                              }
-                            >
-                              {part.value}
-                            </span>
-                          ))}
-                        </>
-                      ) : (
-                        <div className="text-muted-foreground">Your cleaned text will appear here.</div>
-                      )}
-                    </div>
+                    <Textarea
+                      id="original-text"
+                      ref={originalTextRef}
+                      placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean)"
+                      value={originalText}
+                      onChange={(e) => setOriginalText(e.target.value)}
+                      onKeyDown={handleKeyDown}
+                      onPaste={handlePaste}
+                      onScroll={(e) => handleScroll(e.currentTarget.scrollTop)}
+                      className="flex-grow resize-none font-mono text-base"
+                    />
                   )}
-                   <div className="text-xs text-muted-foreground flex justify-end gap-4">
-                      <span>{cleanedReadingTime}</span>
-                      <span>{cleanedWordCount} {cleanedWordCount === 1 ? 'word' : 'words'}</span>
-                      <span>{cleanedCharCount} {cleanedCharCount === 1 ? 'character' : 'characters'}</span>
+                  <div className="grid grid-cols-2 text-xs text-muted-foreground">
+                      <div className="flex justify-start gap-4">
+                          <span>{originalReadingTime}</span>
+                          <span>{originalWordCount} {originalWordCount === 1 ? 'word' : 'words'}</span>
+                          <span>{originalCharCount} {originalCharCount === 1 ? 'character' : 'characters'}</span>
+                      </div>
+                      <div className={cn("flex justify-end gap-4", !showSlider && "invisible")}>
+                          <span>{cleanedReadingTime}</span>
+                          <span>{cleanedWordCount} {cleanedWordCount === 1 ? 'word' : 'words'}</span>
+                          <span>{cleanedCharCount} {cleanedCharCount === 1 ? 'character' : 'characters'}</span>
+                      </div>
                   </div>
                 </div>
-              </SplitView>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t">
               <div className="flex items-center space-x-2">

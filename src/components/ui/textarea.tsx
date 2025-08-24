@@ -2,10 +2,23 @@
 import * as React from 'react';
 import { cn } from '@/lib/utils';
 
-const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(
-  ({ className, onChange, ...props }, ref) => {
+type TextareaProps = React.ComponentProps<'textarea'> & {
+  setScrollTop?: (scrollTop: number) => void;
+};
+
+const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
+  ({ className, onChange, setScrollTop, ...props }, ref) => {
     const internalRef = React.useRef<HTMLTextAreaElement>(null);
     const combinedRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+
+    React.useImperativeHandle(ref, () => Object.assign(combinedRef.current!, {
+        setScrollTop: (scrollTop: number) => {
+            if (combinedRef.current) {
+                combinedRef.current.scrollTop = scrollTop;
+            }
+        }
+    }));
+
 
     const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
       if (combinedRef.current) {
