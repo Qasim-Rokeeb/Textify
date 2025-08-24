@@ -110,7 +110,7 @@ export default function TextifyPage() {
                   placeholder="Paste your AI-generated text here..."
                   value={originalText}
                   onChange={(e) => setOriginalText(e.target.value)}
-                  className="flex-grow resize-none font-mono"
+                  className="flex-grow resize-none font-mono text-base"
                 />
               </div>
               
