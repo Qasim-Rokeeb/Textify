@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -34,6 +34,11 @@ import {
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 import { Switch } from "@/components/ui/switch";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "@/components/ui/collapsible";
 
 export default function TextifyPage() {
   const [originalText, setOriginalText] = useState("");
@@ -52,6 +57,7 @@ export default function TextifyPage() {
   const [isCopied, setIsCopied] = useState(false);
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
+  const [isHeaderOpen, setIsHeaderOpen] = useState(true);
 
 
   useEffect(() => {
@@ -200,21 +206,35 @@ export default function TextifyPage() {
     <TooltipProvider>
       <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-6xl mx-auto">
-          <header className="text-center mb-8 relative">
-            <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
-              Textify
-            </h1>
-            <p className="text-muted-foreground mt-2 text-lg">
-              Clean and refine your AI-generated text with a single click.
-            </p>
-            <div className="absolute top-0 right-0 flex items-center gap-2">
-              <Button variant="outline" onClick={() => setOpenCommand(true)} className="gap-2">
-                <CommandIcon className="h-4 w-4" />
-                <span className="hidden sm:inline">Commands</span>
-              </Button>
-              <ThemeToggle />
-            </div>
-          </header>
+          <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
+            <header className="text-center mb-8 relative">
+              <div className="flex justify-center items-center gap-2">
+                  <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
+                    Textify
+                  </h1>
+                  <CollapsibleTrigger asChild>
+                    <Button variant="ghost" size="icon" className="h-8 w-8">
+                      <ChevronsUpDown className="h-5 w-5" />
+                      <span className="sr-only">Toggle header</span>
+                    </Button>
+                  </CollapsibleTrigger>
+              </div>
+
+              <CollapsibleContent>
+                <p className="text-muted-foreground mt-2 text-lg">
+                  Clean and refine your AI-generated text with a single click.
+                </p>
+              </CollapsibleContent>
+
+              <div className="absolute top-0 right-0 flex items-center gap-2">
+                <Button variant="outline" onClick={() => setOpenCommand(true)} className="gap-2">
+                  <CommandIcon className="h-4 w-4" />
+                  <span className="hidden sm:inline">Commands</span>
+                </Button>
+                <ThemeToggle />
+              </div>
+            </header>
+          </Collapsible>
 
           <Card className={cn("w-full shadow-lg rounded-lg", isShaking && 'animate-shake')}>
             <CardContent className="p-6">
@@ -425,3 +445,5 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
