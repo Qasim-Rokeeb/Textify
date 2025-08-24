@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import { cleanText } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -19,6 +19,48 @@ export default function TextifyPage() {
   const [cleanedText, setCleanedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+
+  const [isDragging, setIsDragging] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(50); // Initial width in percentage
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleMouseUp = () => {
+    setIsDragging(false);
+  };
+
+  const handleMouseMove = useCallback(
+    (e: MouseEvent) => {
+      if (!isDragging || !containerRef.current) return;
+      const container = containerRef.current;
+      const rect = container.getBoundingClientRect();
+      const newLeftWidth = ((e.clientX - rect.left) / rect.width) * 100;
+
+      if (newLeftWidth > 20 && newLeftWidth < 80) { // Constraint the resize
+        setLeftPanelWidth(newLeftWidth);
+      }
+    },
+    [isDragging]
+  );
+  
+  useEffect(() => {
+    if (isDragging) {
+      document.addEventListener("mousemove", handleMouseMove);
+      document.addEventListener("mouseup", handleMouseUp);
+    } else {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    }
+
+    return () => {
+      document.removeEventListener("mousemove", handleMouseMove);
+      document.removeEventListener("mouseup", handleMouseUp);
+    };
+  }, [isDragging, handleMouseMove, handleMouseUp]);
 
   const handleCleanText = async () => {
     if (!originalText.trim()) return;
@@ -62,8 +104,8 @@ export default function TextifyPage() {
 
         <Card className="w-full shadow-lg rounded-lg">
           <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="flex flex-col space-y-2">
+            <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] md:gap-4" style={{ gridTemplateColumns: `minmax(0, ${leftPanelWidth}fr) auto minmax(0, ${100 - leftPanelWidth}fr)` }}>
+              <div className="flex flex-col space-y-2" style={{minWidth: 0}}>
                 <Label htmlFor="original-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
                   Original Text
                 </Label>
@@ -76,7 +118,12 @@ export default function TextifyPage() {
                   rows={12}
                 />
               </div>
-              <div className="flex flex-col space-y-2">
+              
+              <div onMouseDown={handleMouseDown} className="hidden md:flex items-center justify-center cursor-col-resize w-2 group">
+                 <div className={`w-0.5 h-full bg-border group-hover:bg-primary transition-colors ${isDragging ? 'bg-primary' : ''}`} />
+              </div>
+
+              <div className="flex flex-col space-y-2" style={{minWidth: 0}}>
                 <Label htmlFor="cleaned-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
                   Cleaned Text
                 </Label>
