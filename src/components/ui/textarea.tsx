@@ -1,16 +1,38 @@
-import * as React from 'react';
 
-import {cn} from '@/lib/utils';
+import * as React from 'react';
+import { cn } from '@/lib/utils';
 
 const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'textarea'>>(
-  ({className, ...props}, ref) => {
+  ({ className, onChange, ...props }, ref) => {
+    const internalRef = React.useRef<HTMLTextAreaElement>(null);
+    const combinedRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
+
+    const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+      if (combinedRef.current) {
+        combinedRef.current.style.height = 'auto';
+        combinedRef.current.style.height = `${combinedRef.current.scrollHeight}px`;
+      }
+      if (onChange) {
+        onChange(event);
+      }
+    };
+
+    React.useLayoutEffect(() => {
+        if (combinedRef.current) {
+            combinedRef.current.style.height = 'auto';
+            combinedRef.current.style.height = `${combinedRef.current.scrollHeight}px`;
+        }
+    }, [props.value, combinedRef]);
+
+
     return (
       <textarea
         className={cn(
-          'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm',
+          'flex min-h-[80px] w-full rounded-md border border-input bg-background px-3 py-2 text-base ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 md:text-sm overflow-hidden transition-height duration-200 ease-in-out',
           className
         )}
-        ref={ref}
+        ref={combinedRef}
+        onChange={handleInput}
         {...props}
       />
     );
@@ -18,4 +40,4 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, React.ComponentProps<'tex
 );
 Textarea.displayName = 'Textarea';
 
-export {Textarea};
+export { Textarea };

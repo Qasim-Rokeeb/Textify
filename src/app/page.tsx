@@ -75,7 +75,6 @@ export default function TextifyPage() {
                   value={originalText}
                   onChange={(e) => setOriginalText(e.target.value)}
                   className="flex-grow resize-none"
-                  rows={12}
                 />
               </div>
               
@@ -98,7 +97,6 @@ export default function TextifyPage() {
                     value={cleanedText}
                     placeholder="Your cleaned text will appear here."
                     className="flex-grow resize-none bg-muted/50"
-                    rows={12}
                   />
                 )}
               </div>
