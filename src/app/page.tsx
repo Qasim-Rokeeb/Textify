@@ -179,11 +179,21 @@ export default function TextifyPage() {
     };
   }, []);
 
+  const calculateReadingTime = (wordCount: number) => {
+    const wordsPerMinute = 200;
+    const minutes = wordCount / wordsPerMinute;
+    const readTime = Math.ceil(minutes);
+    if (readTime < 1) return "< 1 min read";
+    return `${readTime} min read`;
+  };
+
   const originalCharCount = originalText.length;
   const originalWordCount = originalText.trim() === "" ? 0 : originalText.trim().split(/\s+/).length;
+  const originalReadingTime = calculateReadingTime(originalWordCount);
   
   const cleanedCharCount = cleanedText.length;
   const cleanedWordCount = cleanedText.trim() === "" ? 0 : cleanedText.trim().split(/\s+/).length;
+  const cleanedReadingTime = calculateReadingTime(cleanedWordCount);
 
 
   return (
@@ -224,6 +234,7 @@ export default function TextifyPage() {
                     className="flex-grow resize-none font-mono text-base"
                   />
                   <div className="text-xs text-muted-foreground flex justify-end gap-4">
+                      <span>{originalReadingTime}</span>
                       <span>{originalWordCount} {originalWordCount === 1 ? 'word' : 'words'}</span>
                       <span>{originalCharCount} {originalCharCount === 1 ? 'character' : 'characters'}</span>
                   </div>
@@ -270,6 +281,7 @@ export default function TextifyPage() {
                     </div>
                   )}
                    <div className="text-xs text-muted-foreground flex justify-end gap-4">
+                      <span>{cleanedReadingTime}</span>
                       <span>{cleanedWordCount} {cleanedWordCount === 1 ? 'word' : 'words'}</span>
                       <span>{cleanedCharCount} {cleanedCharCount === 1 ? 'character' : 'characters'}</span>
                   </div>
@@ -386,5 +398,3 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
-
-    
