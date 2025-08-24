@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus, Pilcrow } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus, Pilcrow, ParkingSquare } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -58,6 +58,7 @@ export default function TextifyPage() {
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
   const [removeEmojis, setRemoveEmojis] = useState(false);
   const [normalizeQuotes, setNormalizeQuotes] = useState(false);
+  const [trimTrailingSpaces, setTrimTrailingSpaces] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -119,7 +120,7 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes });
+      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -135,7 +136,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -346,6 +347,10 @@ export default function TextifyPage() {
                   <Switch id="normalize-quotes" checked={normalizeQuotes} onCheckedChange={setNormalizeQuotes} />
                   <Label htmlFor="normalize-quotes">Normalize Quotes</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="trim-trailing-spaces" checked={trimTrailingSpaces} onCheckedChange={setTrimTrailingSpaces} />
+                  <Label htmlFor="trim-trailing-spaces">Trim Trailing Spaces</Label>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <Tooltip>
@@ -456,6 +461,12 @@ export default function TextifyPage() {
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={normalizeQuotes} />
                     <span>Normalize Quotes</span>
+                 </div>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setTrimTrailingSpaces(!trimTrailingSpaces))}>
+                 <div className="flex items-center">
+                    <Switch className="mr-2" checked={trimTrailingSpaces} />
+                    <span>Trim Trailing Spaces</span>
                  </div>
               </CommandItem>
             </CommandGroup>

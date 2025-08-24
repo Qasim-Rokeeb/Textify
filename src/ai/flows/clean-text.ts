@@ -16,6 +16,7 @@ const CleanTextInputSchema = z.object({
   text: z.string().describe('The AI-generated text to be cleaned.'),
   removeEmojis: z.boolean().optional().describe('Whether to remove emojis from the text.'),
   normalizeQuotes: z.boolean().optional().describe('Whether to normalize curly quotes to straight quotes.'),
+  trimTrailingSpaces: z.boolean().optional().describe('Whether to trim trailing whitespace from each line.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -54,6 +55,9 @@ Also, remove all emojis from the text.
 {{/if}}
 {{#if normalizeQuotes}}
 Also, convert all curly "smart" quotes (e.g., “ ”, ‘ ’) to straight quotes (e.g., " ", ' ').
+{{/if}}
+{{#if trimTrailingSpaces}}
+Also, trim any trailing whitespace from the end of each line.
 {{/if}}
 
 Original Text: {{{text}}}
