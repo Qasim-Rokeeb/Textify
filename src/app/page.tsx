@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus, Pilcrow, ParkingSquare } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus, Pilcrow, ParkingSquare, CaseLower } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -59,6 +59,7 @@ export default function TextifyPage() {
   const [removeEmojis, setRemoveEmojis] = useState(false);
   const [normalizeQuotes, setNormalizeQuotes] = useState(false);
   const [trimTrailingSpaces, setTrimTrailingSpaces] = useState(false);
+  const [convertToLowercase, setConvertToLowercase] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -120,7 +121,7 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces });
+      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -136,7 +137,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -351,6 +352,10 @@ export default function TextifyPage() {
                   <Switch id="trim-trailing-spaces" checked={trimTrailingSpaces} onCheckedChange={setTrimTrailingSpaces} />
                   <Label htmlFor="trim-trailing-spaces">Trim Trailing Spaces</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="convert-to-lowercase" checked={convertToLowercase} onCheckedChange={setConvertToLowercase} />
+                  <Label htmlFor="convert-to-lowercase">Lowercase</Label>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <Tooltip>
@@ -467,6 +472,12 @@ export default function TextifyPage() {
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={trimTrailingSpaces} />
                     <span>Trim Trailing Spaces</span>
+                 </div>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setConvertToLowercase(!convertToLowercase))}>
+                 <div className="flex items-center">
+                    <Switch className="mr-2" checked={convertToLowercase} />
+                    <span>Convert to Lowercase</span>
                  </div>
               </CommandItem>
             </CommandGroup>

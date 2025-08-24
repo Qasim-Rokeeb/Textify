@@ -17,6 +17,7 @@ const CleanTextInputSchema = z.object({
   removeEmojis: z.boolean().optional().describe('Whether to remove emojis from the text.'),
   normalizeQuotes: z.boolean().optional().describe('Whether to normalize curly quotes to straight quotes.'),
   trimTrailingSpaces: z.boolean().optional().describe('Whether to trim trailing whitespace from each line.'),
+  convertToLowercase: z.boolean().optional().describe('Whether to convert the entire text to lowercase.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -58,6 +59,9 @@ Also, convert all curly "smart" quotes (e.g., “ ”, ‘ ’) to straight quot
 {{/if}}
 {{#if trimTrailingSpaces}}
 Also, trim any trailing whitespace from the end of each line.
+{{/if}}
+{{#if convertToLowercase}}
+Also, convert the entire text to lowercase.
 {{/if}}
 
 Original Text: {{{text}}}
