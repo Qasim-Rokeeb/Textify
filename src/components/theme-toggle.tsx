@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Brush, Droplets, Trees } from "lucide-react"
+import { Moon, Sun, Brush, Droplets, Trees, Palette } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -52,7 +52,13 @@ export function ThemeToggle() {
            <Trees className="mr-2 h-4 w-4" />
            <span>Forest</span>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("gradient")}>
+           <Palette className="mr-2 h-4 w-4" />
+           <span>Gradient</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
+
+    

@@ -209,6 +209,28 @@ body {
     --input: 115 20% 25%;
     --ring: 130 45% 65%;
   }
+
+  .theme-gradient {
+    --background: 0 0% 96.1%;
+    --foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%;
+    --card-foreground: 222.2 84% 4.9%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 93.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 0 0% 93.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 0 0% 89.8%;
+    --input: 0 0% 100%;
+    --ring: 262.1 83.3% 57.8%;
+  }
 }
 
 
@@ -219,6 +241,13 @@ body {
   body {
     @apply bg-background text-foreground tracking-tight leading-relaxed;
   }
+
+  .theme-gradient body {
+    background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -274,3 +303,17 @@ body {
     transform: translate3d(4px, 0, 0);
   }
 }
+
+@keyframes gradient {
+	0% {
+		background-position: 0% 50%;
+	}
+	50% {
+		background-position: 100% 50%;
+	}
+	100% {
+		background-position: 0% 50%;
+	}
+}
+
+    
