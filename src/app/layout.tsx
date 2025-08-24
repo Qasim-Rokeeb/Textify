@@ -34,7 +34,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          themes={['light', 'dark', 'minimal', 'ocean', 'forest', 'gradient']}
+          themes={['light', 'dark', 'minimal', 'ocean', 'forest', 'gradient', 'glass']}
         >
           {children}
           <Toaster />

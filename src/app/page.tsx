@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -51,7 +51,7 @@ export default function TextifyPage() {
   const originalTextRef = useRef<HTMLTextAreaElement>(null);
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
   const [openCommand, setOpenCommand] = useState(false);
-  const { setTheme } = useTheme();
+  const { theme, setTheme } = useTheme();
   const [isShaking, setIsShaking] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCopied, setIsCopied] = useState(false);
@@ -214,10 +214,10 @@ export default function TextifyPage() {
       <div aria-live="polite" className="sr-only">
         {screenReaderMessage}
       </div>
-      <main id="main-content" className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+      <main id="main-content" className="flex flex-col items-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-6xl mx-auto">
           <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
-            <header className="text-center mb-8 relative">
+            <header className={cn("text-center mb-8 relative", theme === 'glass' && 'sticky top-0 z-10 py-4 glass-header')}>
               <div className="flex justify-center items-center gap-2">
                   <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
                     Textify
@@ -236,7 +236,7 @@ export default function TextifyPage() {
                 </p>
               </CollapsibleContent>
 
-              <div className="absolute top-0 right-0 flex items-center gap-2">
+              <div className="absolute top-0 right-0 flex items-center gap-2 pt-4">
                 <Button variant="outline" onClick={() => setOpenCommand(true)} className="gap-2">
                   <CommandIcon className="h-4 w-4" />
                   <span className="hidden sm:inline">Commands</span>
@@ -465,11 +465,13 @@ export default function TextifyPage() {
                 <Palette className="mr-2 h-4 w-4" />
                 <span>Gradient</span>
               </CommandItem>
+               <CommandItem onSelect={() => runCommand(() => setTheme("glass"))}>
+                <GlassWater className="mr-2 h-4 w-4" />
+                <span>Glass</span>
+              </CommandItem>
             </CommandGroup>
           </CommandList>
         </CommandDialog>
     </TooltipProvider>
   );
 }
-
-    
