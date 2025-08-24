@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon, Undo2, Check } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check } from "lucide-react";
 import { SplitView } from "@/components/ui/split-view";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -354,13 +354,13 @@ export default function TextifyPage() {
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Theme">
-              <CommandItem onSelect={() => runCommand(() => setTheme("sans"))}>
-                <Type className="mr-2 h-4 w-4" />
-                <span>Use Sans-Serif Font</span>
+              <CommandItem onSelect={() => runCommand(() => setTheme("light"))}>
+                <Sun className="mr-2 h-4 w-4" />
+                <span>Light</span>
               </CommandItem>
-              <CommandItem onSelect={() => runCommand(() => setTheme("serif"))}>
-                <Pilcrow className="mr-2 h-4 w-4" />
-                <span>Use Serif Font</span>
+              <CommandItem onSelect={() => runCommand(() => setTheme("dark"))}>
+                <Moon className="mr-2 h-4 w-4" />
+                <span>Dark</span>
               </CommandItem>
             </CommandGroup>
           </CommandList>
@@ -368,7 +368,3 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
-
-    
-
-    
