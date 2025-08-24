@@ -15,6 +15,7 @@ import {diffChars} from 'diff';
 const CleanTextInputSchema = z.object({
   text: z.string().describe('The AI-generated text to be cleaned.'),
   removeEmojis: z.boolean().optional().describe('Whether to remove emojis from the text.'),
+  normalizeQuotes: z.boolean().optional().describe('Whether to normalize curly quotes to straight quotes.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -50,6 +51,9 @@ const prompt = ai.definePrompt({
 Remove symbols like #, *, and any other characters that are not part of the main text content. Preserve intentional line breaks from the original text.
 {{#if removeEmojis}}
 Also, remove all emojis from the text.
+{{/if}}
+{{#if normalizeQuotes}}
+Also, convert all curly "smart" quotes (e.g., “ ”, ‘ ’) to straight quotes (e.g., " ", ' ').
 {{/if}}
 
 Original Text: {{{text}}}

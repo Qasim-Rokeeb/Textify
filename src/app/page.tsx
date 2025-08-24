@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus, Pilcrow } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -57,6 +57,7 @@ export default function TextifyPage() {
   const [isCopied, setIsCopied] = useState(false);
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
   const [removeEmojis, setRemoveEmojis] = useState(false);
+  const [normalizeQuotes, setNormalizeQuotes] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -118,7 +119,7 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText, removeEmojis });
+      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -134,7 +135,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -332,7 +333,7 @@ export default function TextifyPage() {
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t">
-              <div className="flex items-center space-x-4">
+              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <div className="flex items-center space-x-2">
                   <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
                   <Label htmlFor="auto-clean">Auto-clean</Label>
@@ -340,6 +341,10 @@ export default function TextifyPage() {
                 <div className="flex items-center space-x-2">
                   <Switch id="remove-emojis" checked={removeEmojis} onCheckedChange={setRemoveEmojis} />
                   <Label htmlFor="remove-emojis">Remove Emojis</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="normalize-quotes" checked={normalizeQuotes} onCheckedChange={setNormalizeQuotes} />
+                  <Label htmlFor="normalize-quotes">Normalize Quotes</Label>
                 </div>
               </div>
               <div className="flex items-center gap-4">
@@ -445,6 +450,12 @@ export default function TextifyPage() {
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={removeEmojis} />
                     <span>Remove Emojis</span>
+                 </div>
+              </CommandItem>
+               <CommandItem onSelect={() => runCommand(() => setNormalizeQuotes(!normalizeQuotes))}>
+                 <div className="flex items-center">
+                    <Switch className="mr-2" checked={normalizeQuotes} />
+                    <span>Normalize Quotes</span>
                  </div>
               </CommandItem>
             </CommandGroup>
