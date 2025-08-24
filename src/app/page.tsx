@@ -15,6 +15,7 @@ import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Copy, Loader2, Sparkles } from "lucide-react";
 import { SplitView } from "@/components/ui/split-view";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export default function TextifyPage() {
   const [originalText, setOriginalText] = useState("");
@@ -79,13 +80,16 @@ export default function TextifyPage() {
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl mx-auto">
-        <header className="text-center mb-8">
+        <header className="text-center mb-8 relative">
           <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
             Textify
           </h1>
           <p className="text-muted-foreground mt-2 text-lg">
             Clean and refine your AI-generated text with a single click.
           </p>
+          <div className="absolute top-0 right-0">
+            <ThemeToggle />
+          </div>
         </header>
 
         <Card className="w-full shadow-lg rounded-lg">
