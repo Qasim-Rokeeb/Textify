@@ -26,6 +26,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon } from "lucide-react";
 import { SplitView } from "@/components/ui/split-view";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { cn } from "@/lib/utils";
 
 export default function TextifyPage() {
   const [originalText, setOriginalText] = useState("");
@@ -40,6 +41,7 @@ export default function TextifyPage() {
   const [animationKey, setAnimationKey] = useState(0);
   const [openCommand, setOpenCommand] = useState(false);
   const { setTheme } = useTheme();
+  const [isShaking, setIsShaking] = useState(false);
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -72,7 +74,13 @@ export default function TextifyPage() {
 
 
   const handleCleanText = async () => {
-    if (!originalText.trim() || isLoading) return;
+    if (!originalText.trim() || isLoading) {
+      if (!originalText.trim()) {
+        setIsShaking(true);
+        setTimeout(() => setIsShaking(false), 500);
+      }
+      return;
+    }
     setIsLoading(true);
     setCleanedText("");
     setDiff([]);
@@ -138,7 +146,7 @@ export default function TextifyPage() {
             </div>
           </header>
 
-          <Card className="w-full shadow-lg rounded-lg">
+          <Card className={cn("w-full shadow-lg rounded-lg", isShaking && 'animate-shake')}>
             <CardContent className="p-6">
               <SplitView>
                 <div className="flex flex-col space-y-2 h-full">
