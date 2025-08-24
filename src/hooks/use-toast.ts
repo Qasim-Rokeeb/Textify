@@ -134,6 +134,12 @@ const listeners: Array<(state: State) => void> = []
 let memoryState: State = { toasts: [] }
 
 function dispatch(action: Action) {
+  // Before adding a new toast, dismiss all existing ones to prevent stacking
+  if (action.type === 'ADD_TOAST') {
+    memoryState.toasts.forEach(toast => {
+      dispatch({ type: 'DISMISS_TOAST', toastId: toast.id });
+    });
+  }
   memoryState = reducer(memoryState, action)
   listeners.forEach((listener) => {
     listener(memoryState)
