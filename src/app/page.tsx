@@ -289,7 +289,7 @@ export default function TextifyPage() {
                                     key={index}
                                     className={
                                       part.removed
-                                        ? "bg-red-200/50 text-red-700 line-through dark:bg-red-900/50 dark:text-red-400"
+                                        ? "bg-destructive/20 text-destructive line-through"
                                         : ""
                                     }
                                   >
