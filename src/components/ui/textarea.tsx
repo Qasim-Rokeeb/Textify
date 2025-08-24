@@ -11,13 +11,18 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     const internalRef = React.useRef<HTMLTextAreaElement>(null);
     const combinedRef = (ref as React.RefObject<HTMLTextAreaElement>) || internalRef;
 
-    React.useImperativeHandle(ref, () => Object.assign(combinedRef.current!, {
-        setScrollTop: (scrollTop: number) => {
-            if (combinedRef.current) {
-                combinedRef.current.scrollTop = scrollTop;
-            }
+    React.useImperativeHandle(ref, () => {
+        if (!combinedRef.current) {
+            return {} as HTMLTextAreaElement;
         }
-    }));
+        return Object.assign(combinedRef.current, {
+            setScrollTop: (scrollTop: number) => {
+                if (combinedRef.current) {
+                    combinedRef.current.scrollTop = scrollTop;
+                }
+            }
+        });
+    }, [combinedRef]);
 
 
     const handleInput = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
