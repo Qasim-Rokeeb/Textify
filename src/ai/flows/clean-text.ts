@@ -10,7 +10,7 @@
  */
 
 import {ai} from '@/ai/genkit';
-import {z} from 'genkit';
+import {z} from 'zod';
 import {diffChars} from 'diff';
 
 const CleanTextInputSchema = z.object({
@@ -22,6 +22,8 @@ const CleanTextInputSchema = z.object({
   convertToSentenceCase: z.boolean().optional().describe('Whether to convert the text to sentence case.'),
   removeUrls: z.boolean().optional().describe('Whether to remove URLs from the text.'),
   removeLineNumbers: z.boolean().optional().describe('Whether to remove line numbers from the beginning of each line.'),
+  useRegex: z.boolean().optional().describe('Whether to use a custom regular expression for cleaning.'),
+  regexPattern: z.string().optional().describe('The custom regular expression pattern to apply.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -75,6 +77,9 @@ Also, remove all URLs (e.g., http://, https://, www.) from the text.
 {{/if}}
 {{#if removeLineNumbers}}
 Also, remove any line numbers from the beginning of each line. For example, if a line starts with "1. " or "1) ", remove it.
+{{/if}}
+{{#if useRegex}}
+Also, apply the following regular expression to remove matching patterns from the text: {{{regexPattern}}}
 {{/if}}
 
 Original Text: {{{text}}}
