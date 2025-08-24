@@ -46,7 +46,7 @@ const prompt = ai.definePrompt({
   output: {schema: z.object({ cleanedText: z.string() })},
   prompt: `You are a text cleaning expert. Your job is to remove unwanted symbols and formatting characters from AI-generated text.
 
-Remove symbols like #, *, and any other characters that are not part of the main text content.
+Remove symbols like #, *, and any other characters that are not part of the main text content. Preserve intentional line breaks from the original text.
 
 Original Text: {{{text}}}
 

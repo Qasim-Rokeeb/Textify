@@ -131,11 +131,11 @@ export default function TextifyPage() {
                     id="cleaned-text"
                     key={animationKey}
                     ref={cleanedTextRef}
-                    className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto font-sans rounded-md border border-input p-2 text-base break-words"
+                    className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto font-sans rounded-md border border-input p-2 text-base break-words whitespace-pre-wrap"
                     style={{ animation: 'fadeIn 0.5s ease-in-out' }}
                   >
                     {diff.length > 0 ? (
-                      <pre className="whitespace-pre-wrap">
+                      <>
                         {diff.map((part, index) => (
                           <span
                             key={index}
@@ -148,7 +148,7 @@ export default function TextifyPage() {
                             {part.value}
                           </span>
                         ))}
-                      </pre>
+                      </>
                     ) : (
                       <div className="text-muted-foreground">Your cleaned text will appear here.</div>
                     )}
