@@ -14,6 +14,10 @@ import {diffChars} from 'diff';
 
 const CleanTextInputSchema = z.object({
   text: z.string().describe('The AI-generated text to be cleaned.'),
+  stripWhitespace: z
+    .boolean()
+    .optional()
+    .describe('Whether to strip extra whitespace.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -47,6 +51,10 @@ const prompt = ai.definePrompt({
   prompt: `You are a text cleaning expert. Your job is to remove unwanted symbols and formatting characters from AI-generated text.
 
 Remove symbols like #, *, and any other characters that are not part of the main text content. Preserve intentional line breaks from the original text.
+
+{{#if stripWhitespace}}
+Additionally, collapse multiple whitespace characters (spaces, tabs) into a single space, remove leading/trailing whitespace from each line, and trim leading/trailing blank lines from the entire text.
+{{/if}}
 
 Original Text: {{{text}}}
 

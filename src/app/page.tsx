@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -56,6 +56,7 @@ export default function TextifyPage() {
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
+  const [stripWhitespace, setStripWhitespace] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -117,7 +118,7 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText });
+      const result = await cleanText({ text: originalText, stripWhitespace });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -133,7 +134,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast]);
+  }, [originalText, cleanedText, diff, isLoading, toast, stripWhitespace]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -331,9 +332,15 @@ export default function TextifyPage() {
                 </div>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t">
-              <div className="flex items-center space-x-2">
-                <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
-                <Label htmlFor="auto-clean">Auto-clean on paste</Label>
+              <div className="flex items-center space-x-4">
+                <div className="flex items-center space-x-2">
+                  <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
+                  <Label htmlFor="auto-clean">Auto-clean</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="strip-whitespace" checked={stripWhitespace} onCheckedChange={setStripWhitespace} />
+                  <Label htmlFor="strip-whitespace">Strip Whitespace</Label>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <Tooltip>
@@ -432,6 +439,12 @@ export default function TextifyPage() {
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={autoCleanOnPaste} />
                     <span>Auto-clean on paste</span>
+                 </div>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setStripWhitespace(!stripWhitespace))}>
+                 <div className="flex items-center">
+                    <Switch className="mr-2" checked={stripWhitespace} />
+                    <span>Strip extra whitespace</span>
                  </div>
               </CommandItem>
             </CommandGroup>
