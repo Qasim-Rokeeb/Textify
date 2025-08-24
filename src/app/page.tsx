@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { useTheme } from "next-themes";
 import { cleanText, TextSegment } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
@@ -48,6 +48,8 @@ export default function TextifyPage() {
   const [openCommand, setOpenCommand] = useState(false);
   const { setTheme } = useTheme();
   const [isShaking, setIsShaking] = useState(false);
+  const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
 
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
@@ -79,7 +81,7 @@ export default function TextifyPage() {
   }, [originalText, isLoading]);
 
 
-  const handleCleanText = async () => {
+  const handleCleanText = useCallback(async () => {
     if (!originalText.trim() || isLoading) {
       if (!originalText.trim()) {
         setIsShaking(true);
@@ -109,7 +111,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  };
+  }, [originalText, isLoading, toast]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -131,6 +133,29 @@ export default function TextifyPage() {
     setOpenCommand(false);
     command();
   };
+
+  const debouncedCleanText = useCallback(() => {
+    if (debounceTimeoutRef.current) {
+      clearTimeout(debounceTimeoutRef.current);
+    }
+    debounceTimeoutRef.current = setTimeout(() => {
+      handleCleanText();
+    }, 500); // 500ms debounce delay
+  }, [handleCleanText]);
+
+  const handlePaste = () => {
+    // We need a slight delay to allow the pasted text to be set in the state
+    setTimeout(debouncedCleanText, 50);
+  };
+  
+  useEffect(() => {
+    return () => {
+      if (debounceTimeoutRef.current) {
+        clearTimeout(debounceTimeoutRef.current);
+      }
+    };
+  }, []);
+
 
   return (
     <TooltipProvider>
@@ -166,6 +191,7 @@ export default function TextifyPage() {
                     value={originalText}
                     onChange={(e) => setOriginalText(e.target.value)}
                     onKeyDown={handleKeyDown}
+                    onPaste={handlePaste}
                     className="flex-grow resize-none font-mono text-base"
                   />
                 </div>
