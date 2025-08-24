@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon, Undo2 } from "lucide-react";
+import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon, Undo2, Check } from "lucide-react";
 import { SplitView } from "@/components/ui/split-view";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -50,6 +50,7 @@ export default function TextifyPage() {
   const { setTheme } = useTheme();
   const [isShaking, setIsShaking] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+  const [isCopied, setIsCopied] = useState(false);
 
 
   useEffect(() => {
@@ -138,6 +139,10 @@ export default function TextifyPage() {
       title: "Copied to clipboard!",
       description: "The cleaned text has been copied.",
     });
+    setIsCopied(true);
+    setTimeout(() => {
+      setIsCopied(false);
+    }, 2000);
   };
 
   const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
@@ -292,8 +297,17 @@ export default function TextifyPage() {
                     className="w-full sm:w-auto"
                     size="lg"
                   >
-                    <Copy className="mr-2 h-4 w-4" />
-                    Copy
+                    {isCopied ? (
+                      <>
+                        <Check className="mr-2 h-4 w-4 text-green-500" />
+                        Copied!
+                      </>
+                    ) : (
+                      <>
+                        <Copy className="mr-2 h-4 w-4" />
+                        Copy
+                      </>
+                    )}
                   </Button>
                 </TooltipTrigger>
                 <TooltipContent>
@@ -354,5 +368,7 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
 
     
