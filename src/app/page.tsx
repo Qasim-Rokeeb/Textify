@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -448,6 +448,18 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
                 <Moon className="mr-2 h-4 w-4" />
                 <span>System</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setTheme("minimal"))}>
+                <Brush className="mr-2 h-4 w-4" />
+                <span>Minimal</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setTheme("ocean"))}>
+                <Droplets className="mr-2 h-4 w-4" />
+                <span>Ocean</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setTheme("forest"))}>
+                <Trees className="mr-2 h-4 w-4" />
+                <span>Forest</span>
               </CommandItem>
             </CommandGroup>
           </CommandList>

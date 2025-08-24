@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun } from "lucide-react"
+import { Moon, Sun, Brush, Droplets, Trees } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -11,6 +11,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator
 } from "@/components/ui/dropdown-menu"
 
 export function ThemeToggle() {
@@ -27,13 +28,29 @@ export function ThemeToggle() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
         <DropdownMenuItem onClick={() => setTheme("light")}>
-          Light
+          <Sun className="mr-2 h-4 w-4" />
+          <span>Light</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("dark")}>
-          Dark
+          <Moon className="mr-2 h-4 w-4" />
+          <span>Dark</span>
         </DropdownMenuItem>
         <DropdownMenuItem onClick={() => setTheme("system")}>
-          System
+          <Moon className="mr-2 h-4 w-4" />
+          <span>System</span>
+        </DropdownMenuItem>
+        <DropdownMenuSeparator />
+        <DropdownMenuItem onClick={() => setTheme("minimal")}>
+           <Brush className="mr-2 h-4 w-4" />
+           <span>Minimal</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("ocean")}>
+           <Droplets className="mr-2 h-4 w-4" />
+           <span>Ocean</span>
+        </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("forest")}>
+           <Trees className="mr-2 h-4 w-4" />
+           <span>Forest</span>
         </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
