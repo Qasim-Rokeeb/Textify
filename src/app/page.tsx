@@ -218,6 +218,23 @@ export default function TextifyPage() {
   const cleanedWordCount = cleanedText.trim() === "" ? 0 : cleanedText.trim().split(/\s+/).length;
   const cleanedReadingTime = calculateReadingTime(cleanedWordCount);
 
+  const getHighlightedText = () => {
+    if (!useRegex || !regexPattern) {
+      return originalText;
+    }
+    try {
+      const regex = new RegExp(regexPattern, 'g');
+      return originalText.split(regex).flatMap((part, i) => {
+        if (i === 0) return [part];
+        const matches = originalText.match(regex);
+        const match = matches?.[i - 1] || '';
+        return [<span key={`match-${i}`} className="bg-yellow-300 dark:bg-yellow-700">{match}</span>, part];
+      });
+    } catch (e) {
+      return originalText; // Invalid regex
+    }
+  };
+
 
   return (
     <TooltipProvider>
@@ -314,17 +331,30 @@ export default function TextifyPage() {
                         }
                       />
                   ) : (
-                    <Textarea
-                      id="original-text"
-                      ref={originalTextRef}
-                      placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean)"
-                      value={originalText}
-                      onChange={(e) => setOriginalText(e.target.value)}
-                      onKeyDown={handleKeyDown}
-                      onPaste={handlePaste}
-                      onScroll={(e) => handleScroll(e.currentTarget.scrollTop)}
-                      className="flex-grow resize-none font-mono text-base"
-                    />
+                    <div className="relative">
+                      <Textarea
+                        id="original-text"
+                        ref={originalTextRef}
+                        placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean)"
+                        value={originalText}
+                        onChange={(e) => setOriginalText(e.target.value)}
+                        onKeyDown={handleKeyDown}
+                        onPaste={handlePaste}
+                        onScroll={(e) => {
+                           handleScroll(e.currentTarget.scrollTop);
+                           const highlightDiv = e.currentTarget.previousElementSibling as HTMLDivElement;
+                           if (highlightDiv) {
+                               highlightDiv.scrollTop = e.currentTarget.scrollTop;
+                           }
+                        }}
+                        className={cn("flex-grow resize-none font-mono text-base", useRegex && regexPattern && "bg-transparent text-transparent caret-black dark:caret-white")}
+                      />
+                       {useRegex && regexPattern && (
+                        <div className="absolute inset-0 -z-10 p-2 overflow-y-auto font-mono text-base pointer-events-none rounded-md border border-input whitespace-pre-wrap break-words">
+                          {getHighlightedText()}
+                        </div>
+                      )}
+                    </div>
                   )}
                   <div className="grid grid-cols-2 text-xs text-muted-foreground">
                       <div className="flex justify-start gap-4">
@@ -578,3 +608,5 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
