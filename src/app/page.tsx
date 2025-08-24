@@ -27,6 +27,7 @@ export default function TextifyPage() {
   const originalTextRef = useRef<HTMLTextAreaElement>(null);
   const [cleanedPanelHeight, setCleanedPanelHeight] = useState('auto');
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+  const [animationKey, setAnimationKey] = useState(0);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -59,6 +60,7 @@ export default function TextifyPage() {
       const result = await cleanText({ text: originalText });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
+      setAnimationKey(prev => prev + 1);
     } catch (error) {
       console.error("Error cleaning text:", error);
       toast({
@@ -127,8 +129,10 @@ export default function TextifyPage() {
                 ) : (
                   <div
                     id="cleaned-text"
+                    key={animationKey}
                     ref={cleanedTextRef}
                     className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto font-sans rounded-md border border-input p-2 text-base"
+                    style={{ animation: 'fadeIn 0.5s ease-in-out' }}
                   >
                     {diff.length > 0 ? (
                       <pre className="whitespace-pre-wrap break-words">
