@@ -1,6 +1,6 @@
 # Textify
 
-Textify is a simple yet powerful web application designed to clean and refine AI-generated text. With a clean and intuitive interface, users can paste their text, and with a single click, get a cleaned-up version, free of common formatting artifacts like markdown symbols.
+Textify is a simple yet powerful web application designed to clean and refine AI-generated text. With a clean and intuitive interface, users can paste their text, and with a single click, get a cleaned-up version, free of common formatting artifacts like markdown symbols. write with ease
 
 Not just for formatting but for focuing on what matters
 ## Features
