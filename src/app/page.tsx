@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useCallback, useEffect } from "react";
@@ -23,19 +24,31 @@ export default function TextifyPage() {
   const [isDragging, setIsDragging] = useState(false);
   const [leftPanelWidth, setLeftPanelWidth] = useState(50); // Initial width in percentage
   const containerRef = useRef<HTMLDivElement>(null);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (isMobile) return;
     e.preventDefault();
     setIsDragging(true);
   };
 
   const handleMouseUp = () => {
+    if (isMobile) return;
     setIsDragging(false);
   };
 
   const handleMouseMove = useCallback(
     (e: MouseEvent) => {
-      if (!isDragging || !containerRef.current) return;
+      if (!isDragging || !containerRef.current || isMobile) return;
       const container = containerRef.current;
       const rect = container.getBoundingClientRect();
       const newLeftWidth = ((e.clientX - rect.left) / rect.width) * 100;
@@ -44,7 +57,7 @@ export default function TextifyPage() {
         setLeftPanelWidth(newLeftWidth);
       }
     },
-    [isDragging]
+    [isDragging, isMobile]
   );
   
   useEffect(() => {
@@ -90,6 +103,8 @@ export default function TextifyPage() {
     });
   };
 
+  const gridStyle = isMobile ? {} : { gridTemplateColumns: `minmax(0, ${leftPanelWidth}fr) auto minmax(0, ${100 - leftPanelWidth}fr)` };
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-4xl mx-auto">
@@ -104,7 +119,7 @@ export default function TextifyPage() {
 
         <Card className="w-full shadow-lg rounded-lg">
           <CardContent className="p-6">
-            <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] md:gap-4" style={{ gridTemplateColumns: `minmax(0, ${leftPanelWidth}fr) auto minmax(0, ${100 - leftPanelWidth}fr)` }}>
+            <div ref={containerRef} className="grid grid-cols-1 md:grid-cols-[1fr_auto_1fr] md:gap-4" style={gridStyle}>
               <div className="flex flex-col space-y-2" style={{minWidth: 0}}>
                 <Label htmlFor="original-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
                   Original Text
@@ -123,7 +138,7 @@ export default function TextifyPage() {
                  <div className={`w-0.5 h-full bg-border group-hover:bg-primary transition-colors ${isDragging ? 'bg-primary' : ''}`} />
               </div>
 
-              <div className="flex flex-col space-y-2" style={{minWidth: 0}}>
+              <div className="flex flex-col space-y-2 mt-4 md:mt-0" style={{minWidth: 0}}>
                 <Label htmlFor="cleaned-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
                   Cleaned Text
                 </Label>
