@@ -23,6 +23,3 @@ This project is built with a modern tech stack:
 - **AI/Backend**: [Genkit (Firebase)](https://firebase.google.com/docs/genkit)
 - **Icons**: [Lucide React](https://lucide.dev/guide/packages/lucide-react)
 
-## Getting Started
-
-To get started with the application, take a look at the main page component in `src/app/page.tsx`. The core AI logic for cleaning text is defined as a Genkit flow in `src/ai/flows/clean-text.ts`.
