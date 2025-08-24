@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -22,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, CaseUpper, Type } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, CaseUpper, Type, ListOrdered } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -61,6 +62,7 @@ export default function TextifyPage() {
   const [convertToLowercase, setConvertToLowercase] = useState(false);
   const [convertToSentenceCase, setConvertToSentenceCase] = useState(false);
   const [removeUrls, setRemoveUrls] = useState(false);
+  const [removeLineNumbers, setRemoveLineNumbers] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -122,7 +124,7 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls });
+      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -138,7 +140,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -365,6 +367,10 @@ export default function TextifyPage() {
                   <Switch id="remove-urls" checked={removeUrls} onCheckedChange={setRemoveUrls} />
                   <Label htmlFor="remove-urls">Remove URLs</Label>
                 </div>
+                 <div className="flex items-center space-x-2">
+                  <Switch id="remove-line-numbers" checked={removeLineNumbers} onCheckedChange={setRemoveLineNumbers} />
+                  <Label htmlFor="remove-line-numbers">Remove Line Numbers</Label>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <Tooltip>
@@ -499,6 +505,13 @@ export default function TextifyPage() {
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={removeUrls} />
                     <span>Remove URLs</span>
+                 </div>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setRemoveLineNumbers(!removeLineNumbers))}>
+                 <div className="flex items-center">
+                    <ListOrdered className="mr-2 h-4 w-4" />
+                    <Switch className="mr-2" checked={removeLineNumbers} />
+                    <span>Remove Line Numbers</span>
                  </div>
               </CommandItem>
             </CommandGroup>

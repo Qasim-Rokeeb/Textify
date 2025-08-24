@@ -1,3 +1,4 @@
+
 'use server';
 
 /**
@@ -20,6 +21,7 @@ const CleanTextInputSchema = z.object({
   convertToLowercase: z.boolean().optional().describe('Whether to convert the entire text to lowercase.'),
   convertToSentenceCase: z.boolean().optional().describe('Whether to convert the text to sentence case.'),
   removeUrls: z.boolean().optional().describe('Whether to remove URLs from the text.'),
+  removeLineNumbers: z.boolean().optional().describe('Whether to remove line numbers from the beginning of each line.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -70,6 +72,9 @@ Also, convert the text to sentence case, where the first letter of each sentence
 {{/if}}
 {{#if removeUrls}}
 Also, remove all URLs (e.g., http://, https://, www.) from the text.
+{{/if}}
+{{#if removeLineNumbers}}
+Also, remove any line numbers from the beginning of each line. For example, if a line starts with "1. " or "1) ", remove it.
 {{/if}}
 
 Original Text: {{{text}}}
