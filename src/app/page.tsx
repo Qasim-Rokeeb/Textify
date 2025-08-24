@@ -22,6 +22,8 @@ export default function TextifyPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const cleanedTextRef = useRef<HTMLTextAreaElement>(null);
+  const originalTextRef = useRef<HTMLTextAreaElement>(null);
+  const [cleanedPanelHeight, setCleanedPanelHeight] = useState('auto');
 
   useEffect(() => {
     if (cleanedTextRef.current) {
@@ -29,12 +31,23 @@ export default function TextifyPage() {
     }
   }, [cleanedText]);
 
+  useEffect(() => {
+    if (originalTextRef.current && !isLoading) {
+      const height = originalTextRef.current.offsetHeight;
+      setCleanedPanelHeight(`${height}px`);
+    }
+  }, [originalText, isLoading]);
+
 
   const handleCleanText = async () => {
     if (!originalText.trim()) return;
     setIsLoading(true);
     setCleanedText("");
     try {
+      if (originalTextRef.current) {
+        const height = originalTextRef.current.offsetHeight;
+        setCleanedPanelHeight(`${height}px`);
+      }
       const result = await cleanText({ text: originalText });
       setCleanedText(result.cleanedText);
     } catch (error) {
@@ -79,6 +92,7 @@ export default function TextifyPage() {
                 </Label>
                 <Textarea
                   id="original-text"
+                  ref={originalTextRef}
                   placeholder="Paste your AI-generated text here..."
                   value={originalText}
                   onChange={(e) => setOriginalText(e.target.value)}
@@ -91,7 +105,7 @@ export default function TextifyPage() {
                   Cleaned Text
                 </Label>
                 {isLoading ? (
-                  <div className="h-[258px] space-y-3 rounded-md border bg-muted/50 p-4">
+                   <div style={{ height: cleanedPanelHeight }} className="flex flex-col space-y-3 rounded-md border bg-muted/50 p-4">
                     <Skeleton className="h-4 w-5/6" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-4/6" />
