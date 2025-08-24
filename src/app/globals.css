@@ -248,6 +248,11 @@ body {
     animation: gradient 15s ease infinite;
   }
 
+  ::selection {
+    background: hsl(var(--primary) / 0.5);
+    color: hsl(var(--primary-foreground));
+  }
+
   ::-webkit-scrollbar {
     width: 8px;
     height: 8px;
@@ -315,5 +320,3 @@ body {
 		background-position: 0% 50%;
 	}
 }
-
-    
