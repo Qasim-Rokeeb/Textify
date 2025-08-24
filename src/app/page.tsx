@@ -24,6 +24,11 @@ export default function TextifyPage() {
   const cleanedTextRef = useRef<HTMLTextAreaElement>(null);
   const originalTextRef = useRef<HTMLTextAreaElement>(null);
   const [cleanedPanelHeight, setCleanedPanelHeight] = useState('auto');
+  const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
 
   useEffect(() => {
     if (cleanedTextRef.current) {
@@ -168,6 +173,9 @@ export default function TextifyPage() {
           >
             Genkit
           </a>
+        </p>
+        <p className="mt-2">
+            &copy; {currentYear} Textify. Built by <b>Qasim Rokeeb</b>.
         </p>
       </footer>
     </main>
