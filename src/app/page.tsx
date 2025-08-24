@@ -6,6 +6,16 @@ import { useTheme } from "next-themes";
 import { cleanText, TextSegment } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Card,
   CardContent,
   CardFooter,
@@ -24,7 +34,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, CaseUpper, Type, ListOrdered, Regex } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -66,9 +76,11 @@ export default function TextifyPage() {
   const [removeLineNumbers, setRemoveLineNumbers] = useState(false);
   const [useRegex, setUseRegex] = useState(false);
   const [regexPattern, setRegexPattern] = useState("");
+  const [regexReplace, setRegexReplace] = useState("");
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
+  const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
 
 
   useEffect(() => {
@@ -112,7 +124,7 @@ export default function TextifyPage() {
     }
   }, [lastClean, toast]);
 
-  const handleCleanText = useCallback(async () => {
+  const handleCleanText = useCallback(async (isReplace: boolean = false) => {
     if (!originalText.trim() || isLoading) {
       if (!originalText.trim()) {
         setIsShaking(true);
@@ -127,7 +139,19 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern });
+      const result = await cleanText({ 
+        text: originalText, 
+        removeEmojis, 
+        normalizeQuotes, 
+        trimTrailingSpaces, 
+        convertToLowercase, 
+        convertToSentenceCase, 
+        removeUrls, 
+        removeLineNumbers, 
+        useRegex, 
+        regexPattern,
+        regexReplace: isReplace ? regexReplace : undefined,
+      });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -143,7 +167,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern, regexReplace]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -409,41 +433,79 @@ export default function TextifyPage() {
                   <Label htmlFor="use-regex">Use Regex</Label>
                 </div>
                 {useRegex && (
-                  <Input
-                    id="regex-pattern"
-                    placeholder="Enter regex pattern..."
-                    value={regexPattern}
-                    onChange={(e) => setRegexPattern(e.target.value)}
-                    className="w-full sm:w-auto"
-                  />
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                    <Input
+                      id="regex-pattern"
+                      placeholder="Enter regex pattern..."
+                      value={regexPattern}
+                      onChange={(e) => setRegexPattern(e.target.value)}
+                      className="w-full sm:w-auto"
+                    />
+                    <Input
+                      id="regex-replace"
+                      placeholder="Replace with..."
+                      value={regexReplace}
+                      onChange={(e) => setRegexReplace(e.target.value)}
+                      className="w-full sm:w-auto"
+                    />
+                  </div>
                 )}
               </div>
               <div className="flex items-center gap-4">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Button
-                      onClick={handleCleanText}
-                      disabled={isLoading || !originalText.trim()}
-                      className="w-full sm:w-auto"
-                      size="lg"
-                    >
-                      {isLoading ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Cleaning...
-                        </>
-                      ) : (
-                        <>
-                          <Sparkles className="mr-2 h-4 w-4" />
-                          Clean Text
-                        </>
-                      )}
-                    </Button>
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p>Removes markdown symbols like #, *, etc.</p>
-                  </TooltipContent>
-                </Tooltip>
+                {useRegex && regexPattern ? (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => setShowReplaceConfirm(true)}
+                        disabled={isLoading || !originalText.trim()}
+                        className="w-full sm:w-auto"
+                        size="lg"
+                        variant="destructive"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Replacing...
+                          </>
+                        ) : (
+                          <>
+                            <Replace className="mr-2 h-4 w-4" />
+                            Replace All
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Replace all matches of the regex pattern.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                ) : (
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        onClick={() => handleCleanText(false)}
+                        disabled={isLoading || !originalText.trim()}
+                        className="w-full sm:w-auto"
+                        size="lg"
+                      >
+                        {isLoading ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Cleaning...
+                          </>
+                        ) : (
+                          <>
+                            <Sparkles className="mr-2 h-4 w-4" />
+                            Clean Text
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Removes markdown symbols like #, *, etc.</p>
+                    </TooltipContent>
+                  </Tooltip>
+                )}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -496,7 +558,7 @@ export default function TextifyPage() {
           <CommandList>
             <CommandEmpty>No results found.</CommandEmpty>
             <CommandGroup heading="Actions">
-              <CommandItem onSelect={() => runCommand(handleCleanText)} disabled={isLoading || !originalText.trim()}>
+              <CommandItem onSelect={() => runCommand(() => handleCleanText(false))} disabled={isLoading || !originalText.trim()}>
                 <Sparkles className="mr-2 h-4 w-4" />
                 <span>Clean Text</span>
               </CommandItem>
@@ -544,11 +606,13 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(() => setConvertToSentenceCase(!convertToSentenceCase))}>
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={convertToSentenceCase} />
+                    <Type className="mr-2 h-4 w-4" />
                     <span>Convert to Sentence Case</span>
                  </div>
               </CommandItem>
               <CommandItem onSelect={() => runCommand(() => setRemoveUrls(!removeUrls))}>
                  <div className="flex items-center">
+                    <Link2Off className="mr-2 h-4 w-4" />
                     <Switch className="mr-2" checked={removeUrls} />
                     <span>Remove URLs</span>
                  </div>
@@ -605,8 +669,27 @@ export default function TextifyPage() {
             </CommandGroup>
           </CommandList>
         </CommandDialog>
+      <AlertDialog open={showReplaceConfirm} onOpenChange={setShowReplaceConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will replace all occurrences of the pattern in the text. This action cannot be undone after another cleaning action has been performed.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                setShowReplaceConfirm(false);
+                handleCleanText(true);
+              }}
+            >
+              Replace All
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
   );
 }
-
-    

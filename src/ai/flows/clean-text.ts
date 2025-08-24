@@ -24,6 +24,7 @@ const CleanTextInputSchema = z.object({
   removeLineNumbers: z.boolean().optional().describe('Whether to remove line numbers from the beginning of each line.'),
   useRegex: z.boolean().optional().describe('Whether to use a custom regular expression for cleaning.'),
   regexPattern: z.string().optional().describe('The custom regular expression pattern to apply.'),
+  regexReplace: z.string().optional().describe('The string to replace the regex matches with.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -79,7 +80,13 @@ Also, remove all URLs (e.g., http://, https://, www.) from the text.
 Also, remove any line numbers from the beginning of each line. For example, if a line starts with "1. " or "1) ", remove it.
 {{/if}}
 {{#if useRegex}}
+{{#if regexReplace}}
+Also, apply the following regular expression to find and replace matching patterns in the text.
+Regex Pattern: {{{regexPattern}}}
+Replacement String: {{{regexReplace}}}
+{{else}}
 Also, apply the following regular expression to remove matching patterns from the text: {{{regexPattern}}}
+{{/if}}
 {{/if}}
 
 Original Text: {{{text}}}
