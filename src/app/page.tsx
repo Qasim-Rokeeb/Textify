@@ -23,7 +23,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon } from "lucide-react";
+import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon, Undo2 } from "lucide-react";
 import { SplitView } from "@/components/ui/split-view";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -39,6 +39,7 @@ export default function TextifyPage() {
   const [cleanedText, setCleanedText] = useState("");
   const [diff, setDiff] = useState<TextSegment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [lastClean, setLastClean] = useState<{ originalText: string; cleanedText: string; diff: TextSegment[] } | null>(null);
   const { toast } = useToast();
   const cleanedTextRef = useRef<HTMLDivElement>(null);
   const originalTextRef = useRef<HTMLTextAreaElement>(null);
@@ -57,11 +58,15 @@ export default function TextifyPage() {
         e.preventDefault()
         setOpenCommand((open) => !open)
       }
+      if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handleRevert();
+      }
     }
  
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [])
+  }, [lastClean]);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -80,6 +85,18 @@ export default function TextifyPage() {
     }
   }, [originalText, isLoading]);
 
+  const handleRevert = useCallback(() => {
+    if (lastClean) {
+      setOriginalText(lastClean.originalText);
+      setCleanedText(lastClean.cleanedText);
+      setDiff(lastClean.diff);
+      setLastClean(null); // Only allow one level of undo
+      toast({
+        title: "Reverted",
+        description: "The last cleaning action has been undone.",
+      });
+    }
+  }, [lastClean, toast]);
 
   const handleCleanText = useCallback(async () => {
     if (!originalText.trim() || isLoading) {
@@ -90,6 +107,7 @@ export default function TextifyPage() {
       return;
     }
     setIsLoading(true);
+    setLastClean({ originalText, cleanedText, diff });
     setCleanedText("");
     setDiff([]);
     try {
@@ -111,7 +129,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, isLoading, toast]);
+  }, [originalText, cleanedText, diff, isLoading, toast]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -315,6 +333,10 @@ export default function TextifyPage() {
                 <Copy className="mr-2 h-4 w-4" />
                 <span>Copy Cleaned Text</span>
               </CommandItem>
+              <CommandItem onSelect={() => runCommand(handleRevert)} disabled={!lastClean}>
+                <Undo2 className="mr-2 h-4 w-4" />
+                <span>Undo Last Clean</span>
+              </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Theme">
@@ -332,3 +354,5 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
