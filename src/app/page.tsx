@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { cleanText } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +21,14 @@ export default function TextifyPage() {
   const [cleanedText, setCleanedText] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const cleanedTextRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    if (cleanedTextRef.current) {
+      cleanedTextRef.current.scrollTop = cleanedTextRef.current.scrollHeight;
+    }
+  }, [cleanedText]);
+
 
   const handleCleanText = async () => {
     if (!originalText.trim()) return;
@@ -93,10 +101,11 @@ export default function TextifyPage() {
                 ) : (
                   <Textarea
                     id="cleaned-text"
+                    ref={cleanedTextRef}
                     readOnly
                     value={cleanedText}
                     placeholder="Your cleaned text will appear here."
-                    className="flex-grow resize-none bg-muted/50"
+                    className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto"
                   />
                 )}
               </div>
