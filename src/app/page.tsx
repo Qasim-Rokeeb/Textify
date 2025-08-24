@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { cleanText } from "@/ai/flows/clean-text";
+import { cleanText, TextSegment } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
 import {
   Card,
@@ -20,9 +20,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 export default function TextifyPage() {
   const [originalText, setOriginalText] = useState("");
   const [cleanedText, setCleanedText] = useState("");
+  const [diff, setDiff] = useState<TextSegment[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
-  const cleanedTextRef = useRef<HTMLTextAreaElement>(null);
+  const cleanedTextRef = useRef<HTMLDivElement>(null);
   const originalTextRef = useRef<HTMLTextAreaElement>(null);
   const [cleanedPanelHeight, setCleanedPanelHeight] = useState('auto');
   const [currentYear, setCurrentYear] = useState(new Date().getFullYear());
@@ -35,7 +36,7 @@ export default function TextifyPage() {
     if (cleanedTextRef.current) {
       cleanedTextRef.current.scrollTop = cleanedTextRef.current.scrollHeight;
     }
-  }, [cleanedText]);
+  }, [diff]);
 
   useEffect(() => {
     if (originalTextRef.current && !isLoading) {
@@ -49,6 +50,7 @@ export default function TextifyPage() {
     if (!originalText.trim()) return;
     setIsLoading(true);
     setCleanedText("");
+    setDiff([]);
     try {
       if (originalTextRef.current) {
         const height = originalTextRef.current.offsetHeight;
@@ -56,6 +58,7 @@ export default function TextifyPage() {
       }
       const result = await cleanText({ text: originalText });
       setCleanedText(result.cleanedText);
+      setDiff(result.diff);
     } catch (error) {
       console.error("Error cleaning text:", error);
       toast({
@@ -122,14 +125,30 @@ export default function TextifyPage() {
                     <Skeleton className="h-4 w-3/6" />
                   </div>
                 ) : (
-                  <Textarea
+                  <div
                     id="cleaned-text"
                     ref={cleanedTextRef}
-                    readOnly
-                    value={cleanedText}
-                    placeholder="Your cleaned text will appear here."
-                    className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto font-sans"
-                  />
+                    className="flex-grow resize-none bg-muted/50 max-h-[400px] overflow-y-auto font-sans rounded-md border border-input p-2 text-base"
+                  >
+                    {diff.length > 0 ? (
+                      <pre className="whitespace-pre-wrap break-words">
+                        {diff.map((part, index) => (
+                          <span
+                            key={index}
+                            className={
+                              part.removed
+                                ? "bg-red-200/50 text-red-700 line-through dark:bg-red-900/50 dark:text-red-400"
+                                : ""
+                            }
+                          >
+                            {part.value}
+                          </span>
+                        ))}
+                      </pre>
+                    ) : (
+                      <div className="text-muted-foreground">Your cleaned text will appear here.</div>
+                    )}
+                  </div>
                 )}
               </div>
             </SplitView>
