@@ -48,7 +48,7 @@ export default function TextifyPage() {
 
 
   const handleCleanText = async () => {
-    if (!originalText.trim()) return;
+    if (!originalText.trim() || isLoading) return;
     setIsLoading(true);
     setCleanedText("");
     setDiff([]);
@@ -82,6 +82,13 @@ export default function TextifyPage() {
     });
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent<HTMLTextAreaElement>) => {
+    if ((event.metaKey || event.ctrlKey) && event.key === 'Enter') {
+      event.preventDefault();
+      handleCleanText();
+    }
+  };
+
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
       <div className="w-full max-w-6xl mx-auto">
@@ -107,9 +114,10 @@ export default function TextifyPage() {
                 <Textarea
                   id="original-text"
                   ref={originalTextRef}
-                  placeholder="Paste your AI-generated text here..."
+                  placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean)"
                   value={originalText}
                   onChange={(e) => setOriginalText(e.target.value)}
+                  onKeyDown={handleKeyDown}
                   className="flex-grow resize-none font-mono text-base"
                 />
               </div>
