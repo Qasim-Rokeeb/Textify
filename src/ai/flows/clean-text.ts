@@ -19,6 +19,7 @@ const CleanTextInputSchema = z.object({
   trimTrailingSpaces: z.boolean().optional().describe('Whether to trim trailing whitespace from each line.'),
   convertToLowercase: z.boolean().optional().describe('Whether to convert the entire text to lowercase.'),
   convertToSentenceCase: z.boolean().optional().describe('Whether to convert the text to sentence case.'),
+  removeUrls: z.boolean().optional().describe('Whether to remove URLs from the text.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -66,6 +67,9 @@ Also, convert the entire text to lowercase.
 {{/if}}
 {{#if convertToSentenceCase}}
 Also, convert the text to sentence case, where the first letter of each sentence is capitalized.
+{{/if}}
+{{#if removeUrls}}
+Also, remove all URLs (e.g., http://, https://, www.) from the text.
 {{/if}}
 
 Original Text: {{{text}}}

@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
@@ -23,7 +22,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Eraser, SmilePlus, Pilcrow, ParkingSquare, CaseLower, CaseUpper, Type } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, CaseUpper, Type } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -61,6 +60,7 @@ export default function TextifyPage() {
   const [trimTrailingSpaces, setTrimTrailingSpaces] = useState(false);
   const [convertToLowercase, setConvertToLowercase] = useState(false);
   const [convertToSentenceCase, setConvertToSentenceCase] = useState(false);
+  const [removeUrls, setRemoveUrls] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -122,7 +122,7 @@ export default function TextifyPage() {
     setShowSlider(false);
     setScreenReaderMessage("Cleaning text...");
     try {
-      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase });
+      const result = await cleanText({ text: originalText, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
@@ -138,7 +138,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -361,6 +361,10 @@ export default function TextifyPage() {
                   <Switch id="convert-to-sentence-case" checked={convertToSentenceCase} onCheckedChange={setConvertToSentenceCase} />
                   <Label htmlFor="convert-to-sentence-case">Sentence Case</Label>
                 </div>
+                <div className="flex items-center space-x-2">
+                  <Switch id="remove-urls" checked={removeUrls} onCheckedChange={setRemoveUrls} />
+                  <Label htmlFor="remove-urls">Remove URLs</Label>
+                </div>
               </div>
               <div className="flex items-center gap-4">
                 <Tooltip>
@@ -489,6 +493,12 @@ export default function TextifyPage() {
                  <div className="flex items-center">
                     <Switch className="mr-2" checked={convertToSentenceCase} />
                     <span>Convert to Sentence Case</span>
+                 </div>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setRemoveUrls(!removeUrls))}>
+                 <div className="flex items-center">
+                    <Switch className="mr-2" checked={removeUrls} />
+                    <span>Remove URLs</span>
                  </div>
               </CommandItem>
             </CommandGroup>
