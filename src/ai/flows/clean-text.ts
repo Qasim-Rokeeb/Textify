@@ -25,6 +25,7 @@ const CleanTextInputSchema = z.object({
   useRegex: z.boolean().optional().describe('Whether to use a custom regular expression for cleaning.'),
   regexPattern: z.string().optional().describe('The custom regular expression pattern to apply.'),
   regexReplace: z.string().optional().describe('The string to replace the regex matches with.'),
+  caseSensitive: z.boolean().optional().describe('Whether the regex should be case-sensitive.'),
 });
 export type CleanTextInput = z.infer<typeof CleanTextInputSchema>;
 
@@ -86,6 +87,11 @@ Regex Pattern: {{{regexPattern}}}
 Replacement String: {{{regexReplace}}}
 {{else}}
 Also, apply the following regular expression to remove matching patterns from the text: {{{regexPattern}}}
+{{/if}}
+{{#if caseSensitive}}
+The regex should be case-sensitive.
+{{else}}
+The regex should be case-insensitive.
 {{/if}}
 {{/if}}
 

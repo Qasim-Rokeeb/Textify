@@ -34,7 +34,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -77,6 +77,7 @@ export default function TextifyPage() {
   const [useRegex, setUseRegex] = useState(false);
   const [regexPattern, setRegexPattern] = useState("");
   const [regexReplace, setRegexReplace] = useState("");
+  const [caseSensitive, setCaseSensitive] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
@@ -151,6 +152,7 @@ export default function TextifyPage() {
         useRegex, 
         regexPattern,
         regexReplace: isReplace ? regexReplace : undefined,
+        caseSensitive,
       });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
@@ -167,7 +169,7 @@ export default function TextifyPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern, regexReplace]);
+  }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern, regexReplace, caseSensitive]);
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -247,7 +249,7 @@ export default function TextifyPage() {
       return originalText;
     }
     try {
-      const regex = new RegExp(regexPattern, 'g');
+      const regex = new RegExp(regexPattern, caseSensitive ? 'g' : 'gi');
       return originalText.split(regex).flatMap((part, i) => {
         if (i === 0) return [part];
         const matches = originalText.match(regex);
@@ -433,7 +435,7 @@ export default function TextifyPage() {
                   <Label htmlFor="use-regex">Use Regex</Label>
                 </div>
                 {useRegex && (
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
                     <Input
                       id="regex-pattern"
                       placeholder="Enter regex pattern..."
@@ -448,6 +450,10 @@ export default function TextifyPage() {
                       onChange={(e) => setRegexReplace(e.target.value)}
                       className="w-full sm:w-auto"
                     />
+                     <div className="flex items-center space-x-2">
+                      <Switch id="case-sensitive" checked={caseSensitive} onCheckedChange={setCaseSensitive} />
+                      <Label htmlFor="case-sensitive">Case-Sensitive</Label>
+                    </div>
                   </div>
                 )}
               </div>
@@ -629,6 +635,13 @@ export default function TextifyPage() {
                   <Regex className="mr-2 h-4 w-4" />
                   <Switch className="mr-2" checked={useRegex} />
                   <span>Use Regex</span>
+                </div>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setCaseSensitive(!caseSensitive))}>
+                <div className="flex items-center">
+                  <CaseSensitive className="mr-2 h-4 w-4" />
+                  <Switch className="mr-2" checked={caseSensitive} />
+                  <span>Case-Sensitive Regex</span>
                 </div>
               </CommandItem>
             </CommandGroup>
