@@ -26,6 +26,12 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Copy, Loader2, Sparkles, Pilcrow, Type, Command as CommandIcon } from "lucide-react";
 import { SplitView } from "@/components/ui/split-view";
 import { ThemeToggle } from "@/components/theme-toggle";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
 
 export default function TextifyPage() {
@@ -127,7 +133,7 @@ export default function TextifyPage() {
   };
 
   return (
-    <>
+    <TooltipProvider>
       <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-6xl mx-auto">
           <header className="text-center mb-8 relative">
@@ -208,24 +214,31 @@ export default function TextifyPage() {
               </SplitView>
             </CardContent>
             <CardFooter className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4 border-t">
-              <Button
-                onClick={handleCleanText}
-                disabled={isLoading || !originalText.trim()}
-                className="w-full sm:w-auto"
-                size="lg"
-              >
-                {isLoading ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Cleaning...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="mr-2 h-4 w-4" />
-                    Clean Text
-                  </>
-                )}
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    onClick={handleCleanText}
+                    disabled={isLoading || !originalText.trim()}
+                    className="w-full sm:w-auto"
+                    size="lg"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                        Cleaning...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="mr-2 h-4 w-4" />
+                        Clean Text
+                      </>
+                    )}
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Removes markdown symbols like #, *, etc.</p>
+                </TooltipContent>
+              </Tooltip>
               <Button
                 variant="outline"
                 onClick={handleCopy}
@@ -283,6 +296,6 @@ export default function TextifyPage() {
             </CommandGroup>
           </CommandList>
         </CommandDialog>
-    </>
+    </TooltipProvider>
   );
 }
