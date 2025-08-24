@@ -84,7 +84,7 @@ export default function TextifyPage() {
 
   return (
     <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-      <div className="w-full max-w-4xl mx-auto">
+      <div className="w-full max-w-6xl mx-auto">
         <header className="text-center mb-8 relative">
           <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
             Textify
