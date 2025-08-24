@@ -179,6 +179,12 @@ export default function TextifyPage() {
     };
   }, []);
 
+  const originalCharCount = originalText.length;
+  const originalWordCount = originalText.trim() === "" ? 0 : originalText.trim().split(/\s+/).length;
+  
+  const cleanedCharCount = cleanedText.length;
+  const cleanedWordCount = cleanedText.trim() === "" ? 0 : cleanedText.trim().split(/\s+/).length;
+
 
   return (
     <TooltipProvider>
@@ -217,6 +223,10 @@ export default function TextifyPage() {
                     onPaste={handlePaste}
                     className="flex-grow resize-none font-mono text-base"
                   />
+                  <div className="text-xs text-muted-foreground flex justify-end gap-4">
+                      <span>{originalWordCount} {originalWordCount === 1 ? 'word' : 'words'}</span>
+                      <span>{originalCharCount} {originalCharCount === 1 ? 'character' : 'characters'}</span>
+                  </div>
                 </div>
                 
                 <div className="flex flex-col space-y-2 h-full">
@@ -259,6 +269,10 @@ export default function TextifyPage() {
                       )}
                     </div>
                   )}
+                   <div className="text-xs text-muted-foreground flex justify-end gap-4">
+                      <span>{cleanedWordCount} {cleanedWordCount === 1 ? 'word' : 'words'}</span>
+                      <span>{cleanedCharCount} {cleanedCharCount === 1 ? 'character' : 'characters'}</span>
+                  </div>
                 </div>
               </SplitView>
             </CardContent>
@@ -362,9 +376,15 @@ export default function TextifyPage() {
                 <Moon className="mr-2 h-4 w-4" />
                 <span>Dark</span>
               </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setTheme("system"))}>
+                <Moon className="mr-2 h-4 w-4" />
+                <span>System</span>
+              </CommandItem>
             </CommandGroup>
           </CommandList>
         </CommandDialog>
     </TooltipProvider>
   );
 }
+
+    
