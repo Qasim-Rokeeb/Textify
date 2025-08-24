@@ -33,6 +33,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { cn } from "@/lib/utils";
+import { Switch } from "@/components/ui/switch";
 
 export default function TextifyPage() {
   const [originalText, setOriginalText] = useState("");
@@ -51,6 +52,7 @@ export default function TextifyPage() {
   const [isShaking, setIsShaking] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
 
 
   useEffect(() => {
@@ -167,6 +169,7 @@ export default function TextifyPage() {
   }, [handleCleanText]);
 
   const handlePaste = () => {
+    if (!autoCleanOnPaste) return;
     // We need a slight delay to allow the pasted text to be set in the state
     setTimeout(debouncedCleanText, 50);
   };
@@ -288,58 +291,64 @@ export default function TextifyPage() {
                 </div>
               </SplitView>
             </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row justify-center items-center gap-4 pt-4 border-t">
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    onClick={handleCleanText}
-                    disabled={isLoading || !originalText.trim()}
-                    className="w-full sm:w-auto"
-                    size="lg"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                        Cleaning...
-                      </>
-                    ) : (
-                      <>
-                        <Sparkles className="mr-2 h-4 w-4" />
-                        Clean Text
-                      </>
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Removes markdown symbols like #, *, etc.</p>
-                </TooltipContent>
-              </Tooltip>
-              <Tooltip>
-                <TooltipTrigger asChild>
-                  <Button
-                    variant="outline"
-                    onClick={handleCopy}
-                    disabled={isLoading || !cleanedText.trim()}
-                    className="w-full sm:w-auto"
-                    size="lg"
-                  >
-                    {isCopied ? (
-                      <>
-                        <Check className="mr-2 h-4 w-4 text-green-500" />
-                        Copied!
-                      </>
-                    ) : (
-                      <>
-                        <Copy className="mr-2 h-4 w-4" />
-                        Copy
-                      </>
-                    )}
-                  </Button>
-                </TooltipTrigger>
-                <TooltipContent>
-                  <p>Copy the cleaned text to your clipboard.</p>
-                </TooltipContent>
-              </Tooltip>
+            <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t">
+              <div className="flex items-center space-x-2">
+                <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
+                <Label htmlFor="auto-clean">Auto-clean on paste</Label>
+              </div>
+              <div className="flex items-center gap-4">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      onClick={handleCleanText}
+                      disabled={isLoading || !originalText.trim()}
+                      className="w-full sm:w-auto"
+                      size="lg"
+                    >
+                      {isLoading ? (
+                        <>
+                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                          Cleaning...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="mr-2 h-4 w-4" />
+                          Clean Text
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Removes markdown symbols like #, *, etc.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      onClick={handleCopy}
+                      disabled={isLoading || !cleanedText.trim()}
+                      className="w-full sm:w-auto"
+                      size="lg"
+                    >
+                      {isCopied ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4 text-green-500" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Copy className="mr-2 h-4 w-4" />
+                          Copy
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Copy the cleaned text to your clipboard.</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
             </CardFooter>
           </Card>
         </div>
@@ -376,6 +385,15 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(handleRevert)} disabled={!lastClean}>
                 <Undo2 className="mr-2 h-4 w-4" />
                 <span>Undo Last Clean</span>
+              </CommandItem>
+            </CommandGroup>
+            <CommandSeparator />
+            <CommandGroup heading="Settings">
+               <CommandItem onSelect={() => runCommand(() => setAutoCleanOnPaste(!autoCleanOnPaste))}>
+                 <div className="flex items-center">
+                    <Switch className="mr-2" checked={autoCleanOnPaste} />
+                    <span>Auto-clean on paste</span>
+                 </div>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
