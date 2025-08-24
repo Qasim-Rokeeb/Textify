@@ -204,7 +204,7 @@ export default function TextifyPage() {
 
   return (
     <TooltipProvider>
-      <main className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+      <main id="main-content" className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-6xl mx-auto">
           <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
             <header className="text-center mb-8 relative">
