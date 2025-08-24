@@ -239,16 +239,23 @@ export default function TextifyPage() {
                   <p>Removes markdown symbols like #, *, etc.</p>
                 </TooltipContent>
               </Tooltip>
-              <Button
-                variant="outline"
-                onClick={handleCopy}
-                disabled={isLoading || !cleanedText.trim()}
-                className="w-full sm:w-auto"
-                size="lg"
-              >
-                <Copy className="mr-2 h-4 w-4" />
-                Copy
-              </Button>
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <Button
+                    variant="outline"
+                    onClick={handleCopy}
+                    disabled={isLoading || !cleanedText.trim()}
+                    className="w-full sm:w-auto"
+                    size="lg"
+                  >
+                    <Copy className="mr-2 h-4 w-4" />
+                    Copy
+                  </Button>
+                </TooltipTrigger>
+                <TooltipContent>
+                  <p>Copy the cleaned text to your clipboard.</p>
+                </TooltipContent>
+              </Tooltip>
             </CardFooter>
           </Card>
         </div>
