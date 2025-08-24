@@ -63,7 +63,7 @@ export default function TextifyPage() {
         <Card className="w-full shadow-lg rounded-lg">
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div className="space-y-2 flex flex-col">
+              <div className="flex flex-col space-y-2">
                 <Label htmlFor="original-text" className="text-base font-medium">
                   Original Text
                 </Label>
@@ -76,12 +76,12 @@ export default function TextifyPage() {
                   rows={12}
                 />
               </div>
-              <div className="space-y-2 flex flex-col">
+              <div className="flex flex-col space-y-2">
                 <Label htmlFor="cleaned-text" className="text-base font-medium">
                   Cleaned Text
                 </Label>
                 {isLoading ? (
-                  <div className="h-[258px] rounded-md border bg-muted/50 p-4 space-y-3">
+                  <div className="h-[258px] space-y-3 rounded-md border bg-muted/50 p-4">
                     <Skeleton className="h-4 w-5/6" />
                     <Skeleton className="h-4 w-full" />
                     <Skeleton className="h-4 w-4/6" />
