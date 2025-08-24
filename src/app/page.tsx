@@ -58,6 +58,7 @@ export default function TextifyPage() {
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
   const [showSlider, setShowSlider] = useState(false);
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
+  const [screenReaderMessage, setScreenReaderMessage] = useState("");
 
 
   useEffect(() => {
@@ -91,11 +92,13 @@ export default function TextifyPage() {
         title: "Reverted",
         description: "The last cleaning action has been undone.",
       });
+      setScreenReaderMessage("Last cleaning action undone.");
     } else {
       setOriginalText("");
       setCleanedText("");
       setDiff([]);
       setShowSlider(false);
+      setScreenReaderMessage("History cleared.");
     }
   }, [lastClean, toast]);
 
@@ -112,11 +115,13 @@ export default function TextifyPage() {
     setCleanedText("");
     setDiff([]);
     setShowSlider(false);
+    setScreenReaderMessage("Cleaning text...");
     try {
       const result = await cleanText({ text: originalText });
       setCleanedText(result.cleanedText);
       setDiff(result.diff);
       setShowSlider(true);
+      setScreenReaderMessage("Text cleaning complete.");
     } catch (error) {
       console.error("Error cleaning text:", error);
       toast({
@@ -124,6 +129,7 @@ export default function TextifyPage() {
         description: "Failed to clean text. Please try again.",
         variant: "destructive",
       });
+      setScreenReaderMessage("Error cleaning text. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -136,6 +142,7 @@ export default function TextifyPage() {
       title: "Copied to clipboard!",
       description: "The cleaned text has been copied.",
     });
+    setScreenReaderMessage("Cleaned text copied to clipboard.");
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
@@ -204,6 +211,9 @@ export default function TextifyPage() {
 
   return (
     <TooltipProvider>
+      <div aria-live="polite" className="sr-only">
+        {screenReaderMessage}
+      </div>
       <main id="main-content" className="flex flex-col items-center justify-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
         <div className="w-full max-w-6xl mx-auto">
           <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
@@ -445,5 +455,3 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
-
-    
