@@ -64,7 +64,7 @@ export default function TextifyPage() {
           <CardContent className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="original-text" className="text-base font-medium">
+                <Label htmlFor="original-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
                   Original Text
                 </Label>
                 <Textarea
@@ -77,7 +77,7 @@ export default function TextifyPage() {
                 />
               </div>
               <div className="flex flex-col space-y-2">
-                <Label htmlFor="cleaned-text" className="text-base font-medium">
+                <Label htmlFor="cleaned-text" className="text-base font-medium sticky top-0 bg-card z-10 py-2">
                   Cleaned Text
                 </Label>
                 {isLoading ? (
