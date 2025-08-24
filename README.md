@@ -9,7 +9,7 @@ Textify is a simple yet powerful web application designed to clean and refine AI
 - **Copy to Clipboard**: Easily copy the cleaned text with one click.
 - **Responsive Design**: A seamless experience across desktop and mobile devices.
 - **Loading State**: A skeleton loader provides visual feedback while the text is being cleaned.
-- **Adding more features soon**
+- **Adding more features soon, anticipate**
 
 ## Tech Stack
 
