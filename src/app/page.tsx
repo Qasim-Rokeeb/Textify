@@ -84,13 +84,14 @@ export default function TextifyPage() {
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
   const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
   const [matchCount, setMatchCount] = useState(0);
+  const findBarRef = useRef<HTMLDivElement>(null);
 
 
   useEffect(() => {
-    const down = (e: KeyboardEvent) => {
+    const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault()
-        setOpenCommand((open) => !open)
+        e.preventDefault();
+        setOpenCommand((open) => !open);
       }
       if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
@@ -100,11 +101,38 @@ export default function TextifyPage() {
         e.preventDefault();
         setUseRegex(false);
       }
-    }
+      if (e.key === "Tab" && useRegex && findBarRef.current) {
+        const focusableElements = Array.from(
+          findBarRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter(el => el.offsetParent !== null); // Ensure element is visible
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const currentFocusIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+
+        if (e.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstElement || currentFocusIndex === -1) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement || currentFocusIndex === -1) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
  
-    document.addEventListener("keydown", down)
-    return () => document.removeEventListener("keydown", down)
-  }, [lastClean, useRegex]);
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [useRegex, lastClean]);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -455,7 +483,7 @@ export default function TextifyPage() {
                   <Label htmlFor="use-regex">Use Regex</Label>
                 </div>
                 {useRegex && (
-                  <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
+                  <div ref={findBarRef} className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
                     <Input
                       id="regex-pattern"
                       placeholder="Enter regex pattern..."
@@ -492,6 +520,7 @@ export default function TextifyPage() {
                         className="w-full sm:w-auto"
                         size="lg"
                         variant="destructive"
+                        id="replace-all-button"
                       >
                         {isLoading ? (
                           <>
