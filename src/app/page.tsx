@@ -34,7 +34,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -232,6 +232,24 @@ export default function TextifyPage() {
     setTimeout(() => {
       setIsCopied(false);
     }, 2000);
+  };
+
+  const handleExportTxt = () => {
+    if (!cleanedText) return;
+    const blob = new Blob([cleanedText], { type: "text/plain;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "cleaned-text.txt";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+    toast({
+      title: "Exported as .txt",
+      description: "The cleaned text has been downloaded.",
+    });
+    setScreenReaderMessage("Cleaned text exported as a .txt file.");
   };
 
   const handleCopyOriginal = () => {
@@ -607,6 +625,23 @@ export default function TextifyPage() {
                     </TooltipContent>
                   </Tooltip>
                 )}
+                 <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
+                      onClick={handleExportTxt}
+                      disabled={isLoading || !cleanedText.trim()}
+                      className="w-full sm:w-auto"
+                      size="lg"
+                    >
+                      <FileDown className="mr-2 h-4 w-4" />
+                      Export
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Export cleaned text as a .txt file.</p>
+                  </TooltipContent>
+                </Tooltip>
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button
@@ -670,6 +705,10 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(handleCopyOriginal)} disabled={!originalText.trim()}>
                 <Copy className="mr-2 h-4 w-4" />
                 <span>Copy Original Text</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(handleExportTxt)} disabled={isLoading || !cleanedText.trim()}>
+                <FileDown className="mr-2 h-4 w-4" />
+                <span>Export as .txt</span>
               </CommandItem>
               <CommandItem onSelect={() => runCommand(handleRevert)} disabled={!lastClean}>
                 <Undo2 className="mr-2 h-4 w-4" />
