@@ -683,8 +683,8 @@ export default function TextifyPage() {
                   </div>
                 </div>
             </CardContent>
-            <CardFooter className="flex flex-col sm:flex-row justify-between items-center gap-4 pt-4 border-t">
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-2">
+            <CardFooter className="flex flex-col items-start gap-4 p-4 border-t">
+              <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-2">
                 <div className="flex items-center space-x-2">
                   <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
                   <Label htmlFor="auto-clean">Auto-clean</Label>
@@ -699,7 +699,7 @@ export default function TextifyPage() {
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch id="trim-trailing-spaces" checked={trimTrailingSpaces} onCheckedChange={setTrimTrailingSpaces} />
-                  <Label htmlFor="trim-trailing-spaces">Trim Trailing Spaces</Label>
+                  <Label htmlFor="trim-trailing-spaces">Trim Spaces</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch id="convert-to-lowercase" checked={convertToLowercase} onCheckedChange={setConvertToLowercase} />
@@ -715,41 +715,41 @@ export default function TextifyPage() {
                 </div>
                  <div className="flex items-center space-x-2">
                   <Switch id="remove-line-numbers" checked={removeLineNumbers} onCheckedChange={setRemoveLineNumbers} />
-                  <Label htmlFor="remove-line-numbers">Remove Line Numbers</Label>
+                  <Label htmlFor="remove-line-numbers">Remove Lines</Label>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Switch id="use-regex" checked={useRegex} onCheckedChange={setUseRegex} />
                   <Label htmlFor="use-regex">Use Regex</Label>
                 </div>
-                {useRegex && (
-                  <div ref={findBarRef} className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto items-center">
-                    <Input
-                      id="regex-pattern"
-                      placeholder="Enter regex pattern..."
-                      value={regexPattern}
-                      onChange={(e) => setRegexPattern(e.target.value)}
-                      className="w-full sm:w-auto"
-                    />
-                    <Input
-                      id="regex-replace"
-                      placeholder="Replace with..."
-                      value={regexReplace}
-                      onChange={(e) => setRegexReplace(e.target.value)}
-                      className="w-full sm:w-auto"
-                    />
-                     <div className="flex items-center space-x-2">
-                      <Switch id="case-sensitive" checked={caseSensitive} onCheckedChange={setCaseSensitive} />
-                      <Label htmlFor="case-sensitive">Case-Sensitive</Label>
-                    </div>
-                     {regexPattern && (
-                        <Badge variant="secondary" className="whitespace-nowrap">
-                            {matchCount} {matchCount === 1 ? 'match' : 'matches'}
-                        </Badge>
-                     )}
-                  </div>
-                )}
               </div>
-              <div className="flex items-center gap-4">
+               {useRegex && (
+                <div ref={findBarRef} className="w-full flex flex-col sm:flex-row gap-2 items-center pt-2">
+                  <Input
+                    id="regex-pattern"
+                    placeholder="Enter regex pattern..."
+                    value={regexPattern}
+                    onChange={(e) => setRegexPattern(e.target.value)}
+                    className="w-full sm:w-auto flex-grow"
+                  />
+                  <Input
+                    id="regex-replace"
+                    placeholder="Replace with..."
+                    value={regexReplace}
+                    onChange={(e) => setRegexReplace(e.target.value)}
+                    className="w-full sm:w-auto flex-grow"
+                  />
+                    <div className="flex items-center space-x-2">
+                    <Switch id="case-sensitive" checked={caseSensitive} onCheckedChange={setCaseSensitive} />
+                    <Label htmlFor="case-sensitive">Case-Sensitive</Label>
+                  </div>
+                    {regexPattern && (
+                      <Badge variant="secondary" className="whitespace-nowrap">
+                          {matchCount} {matchCount === 1 ? 'match' : 'matches'}
+                      </Badge>
+                    )}
+                </div>
+              )}
+              <div className="w-full flex flex-col sm:flex-row justify-end items-center gap-2 pt-4 border-t mt-2">
                 <Tooltip>
                     <TooltipTrigger asChild>
                       <Button
@@ -757,7 +757,6 @@ export default function TextifyPage() {
                         onClick={handleCopyOriginal}
                         disabled={!originalText.trim()}
                         className="w-full sm:w-auto"
-                        size="lg"
                       >
                         {isOriginalCopied ? (
                           <>
@@ -783,7 +782,6 @@ export default function TextifyPage() {
                         onClick={() => setShowReplaceConfirm(true)}
                         disabled={isLoading || !originalText.trim()}
                         className="w-full sm:w-auto"
-                        size="lg"
                         variant="destructive"
                         id="replace-all-button"
                       >
@@ -811,7 +809,6 @@ export default function TextifyPage() {
                         onClick={() => handleCleanText(false)}
                         disabled={isLoading || !originalText.trim()}
                         className="w-full sm:w-auto"
-                        size="lg"
                       >
                         {isLoading ? (
                           <>
@@ -839,7 +836,6 @@ export default function TextifyPage() {
                                     variant="outline"
                                     disabled={isLoading || !cleanedText.trim()}
                                     className="w-full sm:w-auto"
-                                    size="lg"
                                 >
                                     <FileDown className="mr-2 h-4 w-4" />
                                     Export
@@ -868,7 +864,6 @@ export default function TextifyPage() {
                       onClick={handleShare}
                       disabled={isLoading || !cleanedText.trim()}
                       className="w-full sm:w-auto"
-                      size="lg"
                     >
                       {isShareCopied ? (
                         <>
@@ -894,7 +889,6 @@ export default function TextifyPage() {
                       onClick={handleCopy}
                       disabled={isLoading || !cleanedText.trim()}
                       className="w-full sm:w-auto"
-                      size="lg"
                     >
                       {isCopied ? (
                         <>
