@@ -91,6 +91,7 @@ export default function TextifyPage() {
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
   const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  const [showCopyConfirm, setShowCopyConfirm] = useState(false);
   const [matchCount, setMatchCount] = useState(0);
   const findBarRef = useRef<HTMLDivElement>(null);
 
@@ -261,6 +262,10 @@ export default function TextifyPage() {
 
   const handleCopy = () => {
     if (!cleanedText) return;
+    setShowCopyConfirm(true);
+  };
+  
+  const confirmCopy = () => {
     navigator.clipboard.writeText(cleanedText);
     toast({
       title: "Copied to clipboard!",
@@ -271,6 +276,7 @@ export default function TextifyPage() {
     setTimeout(() => {
       setIsCopied(false);
     }, 2000);
+    setShowCopyConfirm(false);
   };
 
   const handleShare = () => {
@@ -972,8 +978,25 @@ export default function TextifyPage() {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      <AlertDialog open={showCopyConfirm} onOpenChange={setShowCopyConfirm}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Preview & Confirm Copy</AlertDialogTitle>
+            <AlertDialogDescription>
+              Please review the cleaned text below before copying.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="max-h-60 overflow-y-auto rounded-md border bg-muted p-4 font-mono text-sm">
+            <pre className="whitespace-pre-wrap">{cleanedText}</pre>
+          </div>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction onClick={confirmCopy}>
+              Copy to Clipboard
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </TooltipProvider>
   );
 }
-
-    
