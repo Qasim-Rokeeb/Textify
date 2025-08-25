@@ -519,10 +519,7 @@ export default function TextifyPage() {
   const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    // Use relatedTarget to prevent flickering when dragging over child elements
-    if (cardRef.current && !cardRef.current.contains(e.relatedTarget as Node)) {
-       setIsDraggingOver(false);
-    }
+    setIsDraggingOver(false);
   };
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -541,7 +538,13 @@ export default function TextifyPage() {
         {screenReaderMessage}
       </div>
       <main id="main-content" className="flex flex-col items-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
-        <div className="w-full max-w-6xl mx-auto">
+        <div 
+          className="w-full max-w-6xl mx-auto"
+          onDragEnter={onDragEnter}
+          onDragLeave={onDragLeave}
+          onDragOver={onDragOver}
+          onDrop={onDrop}
+        >
           <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
             <header className={cn("text-center mb-8 relative", theme === 'glass' && 'sticky top-0 z-10 py-4 glass-header')}>
               <div className="flex justify-center items-center gap-2">
@@ -574,10 +577,6 @@ export default function TextifyPage() {
 
           <Card
              ref={cardRef}
-             onDragEnter={onDragEnter}
-             onDragOver={onDragOver}
-             onDragLeave={onDragLeave}
-             onDrop={onDrop}
              className={cn("w-full shadow-lg rounded-lg relative", isShaking && 'animate-shake', isDraggingOver && "outline-dashed outline-2 outline-primary outline-offset-4")}>
             
             {isDraggingOver && (
