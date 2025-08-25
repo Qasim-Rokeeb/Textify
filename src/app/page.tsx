@@ -50,6 +50,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "@/components/ui/collapsible";
+import { Badge } from "@/components/ui/badge";
 
 export default function TextifyPage() {
   const [originalText, setOriginalText] = useState("");
@@ -82,6 +83,7 @@ export default function TextifyPage() {
   const [isHeaderOpen, setIsHeaderOpen] = useState(true);
   const [screenReaderMessage, setScreenReaderMessage] = useState("");
   const [showReplaceConfirm, setShowReplaceConfirm] = useState(false);
+  const [matchCount, setMatchCount] = useState(0);
 
 
   useEffect(() => {
@@ -103,6 +105,20 @@ export default function TextifyPage() {
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
   }, []);
+
+  useEffect(() => {
+    if (useRegex && regexPattern && originalText) {
+      try {
+        const regex = new RegExp(regexPattern, caseSensitive ? 'g' : 'gi');
+        const matches = originalText.match(regex);
+        setMatchCount(matches ? matches.length : 0);
+      } catch (e) {
+        setMatchCount(0); // Invalid regex
+      }
+    } else {
+      setMatchCount(0);
+    }
+  }, [originalText, regexPattern, useRegex, caseSensitive]);
 
   const handleRevert = useCallback(() => {
     if (lastClean) {
@@ -454,6 +470,11 @@ export default function TextifyPage() {
                       <Switch id="case-sensitive" checked={caseSensitive} onCheckedChange={setCaseSensitive} />
                       <Label htmlFor="case-sensitive">Case-Sensitive</Label>
                     </div>
+                     {regexPattern && (
+                        <Badge variant="secondary" className="whitespace-nowrap">
+                            {matchCount} {matchCount === 1 ? 'match' : 'matches'}
+                        </Badge>
+                     )}
                   </div>
                 )}
               </div>
@@ -706,3 +727,5 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
