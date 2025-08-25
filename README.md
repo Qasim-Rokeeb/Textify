@@ -22,6 +22,6 @@ This project is built with a modern tech stack:
 - **Styling**: [Tailwind CSS](https://tailwindcss.com/)
 
 - **AI/Backend**: [Genkit (Firebase)](https://firebase.google.com/docs/genkit)
--- Used lucide-icons for the icons
+
 
 
