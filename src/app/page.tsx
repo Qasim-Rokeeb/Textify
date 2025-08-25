@@ -274,7 +274,7 @@ export default function TextifyPage() {
         if (i === 0) return [part];
         const matches = originalText.match(regex);
         const match = matches?.[i - 1] || '';
-        return [<span key={`match-${i}`} className="bg-yellow-300 dark:bg-yellow-700">{match}</span>, part];
+        return [<span key={`match-${i}`} className="border-b-2 border-yellow-400 dark:border-yellow-600">{match}</span>, part];
       });
     } catch (e) {
       return originalText; // Invalid regex
