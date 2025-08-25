@@ -1,7 +1,3 @@
-import {genkit} from 'genkit';
-import {googleAI} from '@genkit-ai/googleai';
-
-export const ai = genkit({
-  plugins: [googleAI()],
-  model: 'googleai/gemini-2.0-flash',
-});
+// This file is intentionally left blank. 
+// The Genkit configuration has been moved to the specific flow files that use it 
+// to ensure each flow has access to the correct AI instance and its configuration.

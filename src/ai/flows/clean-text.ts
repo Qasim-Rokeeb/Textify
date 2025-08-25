@@ -8,10 +8,15 @@
  * - CleanTextInput - The input type for the cleanText function.
  * - CleanTextOutput - The return type for the cleanText function.
  */
-
-import {ai} from '@/ai/genkit';
+import {genkit} from 'genkit';
+import {googleAI} from '@genkit-ai/googleai';
 import {z} from 'zod';
 import {diffChars} from 'diff';
+
+const ai = genkit({
+  plugins: [googleAI()],
+  model: 'googleai/gemini-2.0-flash',
+});
 
 const CleanTextInputSchema = z.object({
   text: z.string().describe('The AI-generated text to be cleaned.'),
