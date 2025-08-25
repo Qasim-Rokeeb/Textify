@@ -40,7 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2 } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -74,6 +74,7 @@ export default function TextifyPage() {
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCopied, setIsCopied] = useState(false);
   const [isOriginalCopied, setIsOriginalCopied] = useState(false);
+  const [isShareCopied, setIsShareCopied] = useState(false);
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
   const [removeEmojis, setRemoveEmojis] = useState(false);
   const [normalizeQuotes, setNormalizeQuotes] = useState(false);
@@ -159,6 +160,38 @@ export default function TextifyPage() {
     }
   }, [originalText, regexPattern, useRegex, caseSensitive]);
 
+  useEffect(() => {
+    const handleHashChange = () => {
+      try {
+        if (window.location.hash.startsWith("#/s/")) {
+          const encodedText = window.location.hash.substring(4);
+          const decodedText = atob(encodedText);
+          setOriginalText(decodedText);
+          setCleanedText(decodedText);
+          setDiff([{ value: decodedText, added: false, removed: false }]);
+          setShowSlider(true);
+          // Clear the hash to avoid re-processing if user cleans again
+          history.replaceState(null, "", " ");
+        }
+      } catch (error) {
+        console.error("Failed to decode text from URL hash:", error);
+        toast({
+          title: "Error",
+          description: "Could not load text from the URL.",
+          variant: "destructive",
+        });
+      }
+    };
+  
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+  
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [toast]);
+
+
   const handleRevert = useCallback(() => {
     if (lastClean) {
       setOriginalText(lastClean.originalText);
@@ -238,6 +271,33 @@ export default function TextifyPage() {
     setTimeout(() => {
       setIsCopied(false);
     }, 2000);
+  };
+
+  const handleShare = () => {
+    if (!cleanedText) return;
+    try {
+      const encodedText = btoa(cleanedText);
+      const url = new URL(window.location.href);
+      url.hash = `#/s/${encodedText}`;
+      navigator.clipboard.writeText(url.toString());
+      toast({
+        title: "Share link copied!",
+        description: "A link to this text has been copied to your clipboard.",
+      });
+      setScreenReaderMessage("Shareable link copied to clipboard.");
+      setIsShareCopied(true);
+      setTimeout(() => {
+        setIsShareCopied(false);
+      }, 2000);
+    } catch (error) {
+      console.error("Error creating share link:", error);
+      toast({
+        title: "Error",
+        description: "Could not create a shareable link.",
+        variant: "destructive",
+      });
+      setScreenReaderMessage("Error creating shareable link.");
+    }
   };
 
   const handleExportTxt = () => {
@@ -683,6 +743,32 @@ export default function TextifyPage() {
                   <TooltipTrigger asChild>
                     <Button
                       variant="outline"
+                      onClick={handleShare}
+                      disabled={isLoading || !cleanedText.trim()}
+                      className="w-full sm:w-auto"
+                      size="lg"
+                    >
+                      {isShareCopied ? (
+                        <>
+                          <Check className="mr-2 h-4 w-4 text-green-500" />
+                          Copied!
+                        </>
+                      ) : (
+                        <>
+                          <Share2 className="mr-2 h-4 w-4" />
+                          Share
+                        </>
+                      )}
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Copy a shareable link to the cleaned text.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button
+                      variant="outline"
                       onClick={handleCopy}
                       disabled={isLoading || !cleanedText.trim()}
                       className="w-full sm:w-auto"
@@ -742,6 +828,10 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(handleCopyOriginal)} disabled={!originalText.trim()}>
                 <Copy className="mr-2 h-4 w-4" />
                 <span>Copy Original Text</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(handleShare)} disabled={isLoading || !cleanedText.trim()}>
+                <Share2 className="mr-2 h-4 w-4" />
+                <span>Share Text</span>
               </CommandItem>
               <CommandItem onSelect={() => runCommand(handleExportTxt)} disabled={isLoading || !cleanedText.trim()}>
                 <FileDown className="mr-2 h-4 w-4" />
