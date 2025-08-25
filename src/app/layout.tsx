@@ -25,21 +25,21 @@ export default function RootLayout({
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Lora:wght@400;700&display=swap" rel="stylesheet" />
       </head>
-      <ThemeProvider
-        attribute="class"
-        defaultTheme="system"
-        enableSystem
-        disableTransitionOnChange
-        themes={['light', 'dark', 'minimal', 'ocean', 'forest', 'gradient', 'glass']}
-      >
-        <body className="font-sans antialiased">
-            <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 bg-background text-foreground border rounded-md">
-              Skip to main content
-            </a>
-            {children}
-            <Toaster />
-        </body>
-      </ThemeProvider>
+      <body className="font-sans antialiased">
+        <ThemeProvider
+          attribute="class"
+          defaultTheme="system"
+          enableSystem
+          disableTransitionOnChange
+          themes={['light', 'dark', 'minimal', 'ocean', 'forest', 'gradient', 'glass']}
+        >
+          <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 bg-background text-foreground border rounded-md">
+            Skip to main content
+          </a>
+          {children}
+          <Toaster />
+        </ThemeProvider>
+      </body>
     </html>
   );
 }

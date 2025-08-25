@@ -3,7 +3,7 @@
 
 import * as React from "react"
 import { Moon, Sun, Brush, Droplets, Trees, Palette, GlassWater } from "lucide-react"
-import { useTheme } from "@/components/theme-provider"
+import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -64,3 +64,5 @@ export function ThemeToggle() {
     </DropdownMenu>
   )
 }
+
+    

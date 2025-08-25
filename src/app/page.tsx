@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useTheme } from "@/components/theme-provider";
+import { useTheme } from "next-themes";
 import { cleanText, TextSegment } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
 import {
@@ -1118,3 +1118,5 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
