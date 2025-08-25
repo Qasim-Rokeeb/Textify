@@ -67,6 +67,7 @@ export default function TextifyPage() {
   const [isShaking, setIsShaking] = useState(false);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const [isCopied, setIsCopied] = useState(false);
+  const [isOriginalCopied, setIsOriginalCopied] = useState(false);
   const [autoCleanOnPaste, setAutoCleanOnPaste] = useState(false);
   const [removeEmojis, setRemoveEmojis] = useState(false);
   const [normalizeQuotes, setNormalizeQuotes] = useState(false);
@@ -230,6 +231,20 @@ export default function TextifyPage() {
     setIsCopied(true);
     setTimeout(() => {
       setIsCopied(false);
+    }, 2000);
+  };
+
+  const handleCopyOriginal = () => {
+    if (!originalText) return;
+    navigator.clipboard.writeText(originalText);
+    toast({
+      title: "Copied original text!",
+      description: "The original text has been copied.",
+    });
+    setScreenReaderMessage("Original text copied to clipboard.");
+    setIsOriginalCopied(true);
+    setTimeout(() => {
+      setIsOriginalCopied(false);
     }, 2000);
   };
 
@@ -511,6 +526,32 @@ export default function TextifyPage() {
                 )}
               </div>
               <div className="flex items-center gap-4">
+                <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Button
+                        variant="outline"
+                        onClick={handleCopyOriginal}
+                        disabled={!originalText.trim()}
+                        className="w-full sm:w-auto"
+                        size="lg"
+                      >
+                        {isOriginalCopied ? (
+                          <>
+                            <Check className="mr-2 h-4 w-4 text-green-500" />
+                            Copied!
+                          </>
+                        ) : (
+                          <>
+                            <Copy className="mr-2 h-4 w-4" />
+                            Copy Original
+                          </>
+                        )}
+                      </Button>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Copy the original text to your clipboard.</p>
+                    </TooltipContent>
+                  </Tooltip>
                 {useRegex && regexPattern ? (
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -625,6 +666,10 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(handleCopy)} disabled={isLoading || !cleanedText.trim()}>
                 <Copy className="mr-2 h-4 w-4" />
                 <span>Copy Cleaned Text</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(handleCopyOriginal)} disabled={!originalText.trim()}>
+                <Copy className="mr-2 h-4 w-4" />
+                <span>Copy Original Text</span>
               </CommandItem>
               <CommandItem onSelect={() => runCommand(handleRevert)} disabled={!lastClean}>
                 <Undo2 className="mr-2 h-4 w-4" />
