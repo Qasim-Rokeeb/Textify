@@ -232,6 +232,28 @@ body {
     --ring: 262.1 83.3% 57.8%;
   }
 
+  .dark.theme-gradient {
+    --background: 20 14.3% 4.1%;
+    --foreground: 0 0% 98%;
+    --card: 20 14.3% 4.1%;
+    --card-foreground: 0 0% 98%;
+    --popover: 20 14.3% 4.1%;
+    --popover-foreground: 0 0% 98%;
+    --primary: 262.1 83.3% 57.8%;
+    --primary-foreground: 0 0% 98%;
+    --secondary: 0 0% 14.9%;
+    --secondary-foreground: 0 0% 98%;
+    --muted: 0 0% 14.9%;
+    --muted-foreground: 0 0% 63.9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
+    --border: 0 0% 14.9%;
+    --input: 0 0% 14.9%;
+    --ring: 262.1 83.3% 57.8%;
+  }
+
   .theme-glass {
     --background: 220 13% 91%;
     --foreground: 222.2 84% 4.9%;
@@ -290,6 +312,12 @@ body {
 
   .theme-gradient body {
     background: linear-gradient(-45deg, #ee7752, #e73c7e, #23a6d5, #23d5ab);
+    background-size: 400% 400%;
+    animation: gradient 15s ease infinite;
+  }
+  
+  .dark.theme-gradient body {
+    background: linear-gradient(-45deg, #0f172a, #1e293b, #334155, #475569);
     background-size: 400% 400%;
     animation: gradient 15s ease infinite;
   }
