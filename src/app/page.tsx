@@ -96,11 +96,15 @@ export default function TextifyPage() {
         e.preventDefault();
         handleRevert();
       }
+      if (e.key === "Escape" && useRegex) {
+        e.preventDefault();
+        setUseRegex(false);
+      }
     }
  
     document.addEventListener("keydown", down)
     return () => document.removeEventListener("keydown", down)
-  }, [lastClean]);
+  }, [lastClean, useRegex]);
 
   useEffect(() => {
     setCurrentYear(new Date().getFullYear());
@@ -727,5 +731,3 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
-
-    
