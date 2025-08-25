@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useRef, useEffect, useCallback } from "react";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 import { cleanText, TextSegment } from "@/ai/flows/clean-text";
 import { Button } from "@/components/ui/button";
 import {
