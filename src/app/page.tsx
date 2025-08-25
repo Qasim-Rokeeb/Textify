@@ -40,7 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2, ClipboardPaste, XCircle } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2, ClipboardPaste, XCircle, UploadCloud } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -94,6 +94,8 @@ export default function TextifyPage() {
   const [showCopyConfirm, setShowCopyConfirm] = useState(false);
   const [matchCount, setMatchCount] = useState(0);
   const findBarRef = useRef<HTMLDivElement>(null);
+  const [isDraggingOver, setIsDraggingOver] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
 
 
   useEffect(() => {
@@ -477,6 +479,61 @@ export default function TextifyPage() {
     }
   };
 
+  const handleFileDrop = (file: File) => {
+    if (!file || !(file.type === "text/plain" || file.name.endsWith(".md"))) {
+      toast({
+        title: "Invalid file type",
+        description: "Please drop a .txt or .md file.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const text = e.target?.result as string;
+      if (text) {
+        setOriginalText(text);
+        toast({
+          title: "File loaded",
+          description: `${file.name} has been loaded.`,
+        });
+        setScreenReaderMessage(`File ${file.name} loaded.`);
+        if (autoCleanOnPaste) {
+          setTimeout(() => handleCleanText(), 50);
+        }
+      }
+    };
+    reader.readAsText(file);
+  };
+
+  const onDragEnter = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(true);
+  };
+  const onDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+  };
+  const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    // Use relatedTarget to prevent flickering when dragging over child elements
+    if (cardRef.current && !cardRef.current.contains(e.relatedTarget as Node)) {
+       setIsDraggingOver(false);
+    }
+  };
+  const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDraggingOver(false);
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFileDrop(e.dataTransfer.files[0]);
+      e.dataTransfer.clearData();
+    }
+  };
+
 
   return (
     <TooltipProvider>
@@ -515,7 +572,22 @@ export default function TextifyPage() {
             </header>
           </Collapsible>
 
-          <Card className={cn("w-full shadow-lg rounded-lg", isShaking && 'animate-shake')}>
+          <Card
+             ref={cardRef}
+             onDragEnter={onDragEnter}
+             onDragOver={onDragOver}
+             onDragLeave={onDragLeave}
+             onDrop={onDrop}
+             className={cn("w-full shadow-lg rounded-lg relative", isShaking && 'animate-shake', isDraggingOver && "outline-dashed outline-2 outline-primary outline-offset-4")}>
+            
+            {isDraggingOver && (
+              <div className="absolute inset-0 z-20 flex flex-col items-center justify-center bg-background/80 backdrop-blur-sm rounded-lg pointer-events-none">
+                <UploadCloud className="h-16 w-16 text-primary mb-4" />
+                <p className="text-lg font-semibold text-primary">Drop your text file here</p>
+                <p className="text-sm text-muted-foreground">Supports .txt and .md files</p>
+              </div>
+            )}
+            
             <CardContent className="p-6">
                 <div className="flex flex-col space-y-2">
                   <div className="grid grid-cols-2">
@@ -577,7 +649,7 @@ export default function TextifyPage() {
                       <Textarea
                         id="original-text"
                         ref={originalTextRef}
-                        placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean)"
+                        placeholder="Paste your AI-generated text here... (Ctrl+Enter to clean) or drop a file"
                         value={originalText}
                         onChange={(e) => setOriginalText(e.target.value)}
                         onKeyDown={handleKeyDown}
