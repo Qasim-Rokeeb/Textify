@@ -40,7 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2 } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2, ClipboardPaste, XCircle } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -105,6 +105,10 @@ export default function TextifyPage() {
       if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
         e.preventDefault();
         handleRevert();
+      }
+       if (e.key === "v" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handlePasteFromClipboard();
       }
       if (e.key === "Escape" && useRegex) {
         e.preventDefault();
@@ -377,7 +381,7 @@ export default function TextifyPage() {
     }, 500); // 500ms debounce delay
   }, [handleCleanText]);
 
-  const handlePaste = () => {
+  const handleAutoCleanPaste = () => {
     if (!autoCleanOnPaste) return;
     setTimeout(debouncedCleanText, 50);
   };
@@ -429,6 +433,47 @@ export default function TextifyPage() {
       });
     } catch (e) {
       return originalText; // Invalid regex
+    }
+  };
+
+  const handleClearAll = () => {
+    setOriginalText("");
+    setCleanedText("");
+    setDiff([]);
+    setShowSlider(false);
+    setLastClean(null);
+    toast({
+      title: "Cleared",
+      description: "Both text fields have been cleared.",
+    });
+    setScreenReaderMessage("Both text fields cleared.");
+  };
+
+  const handlePasteFromClipboard = async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        setOriginalText(text);
+        if (autoCleanOnPaste) {
+           setTimeout(() => handleCleanText(), 50);
+        }
+        toast({
+          title: "Pasted from clipboard",
+          description: "The text has been pasted into the original text field.",
+        });
+        setScreenReaderMessage("Text pasted from clipboard.");
+        originalTextRef.current?.focus();
+      } else {
+         throw new Error("Clipboard API not supported");
+      }
+    } catch (error) {
+      console.error("Failed to read clipboard contents: ", error);
+      toast({
+        title: "Error",
+        description: "Failed to paste text from clipboard. Your browser might not support it or you need to grant permission.",
+        variant: "destructive",
+      });
+      setScreenReaderMessage("Failed to paste from clipboard.");
     }
   };
 
@@ -536,7 +581,7 @@ export default function TextifyPage() {
                         value={originalText}
                         onChange={(e) => setOriginalText(e.target.value)}
                         onKeyDown={handleKeyDown}
-                        onPaste={handlePaste}
+                        onPaste={handleAutoCleanPaste}
                         onScroll={(e) => {
                            handleScroll(e.currentTarget.scrollTop);
                            const highlightDiv = e.currentTarget.previousElementSibling as HTMLDivElement;
@@ -827,6 +872,10 @@ export default function TextifyPage() {
                 <Sparkles className="mr-2 h-4 w-4" />
                 <span>Clean Text</span>
               </CommandItem>
+               <CommandItem onSelect={() => runCommand(handlePasteFromClipboard)}>
+                <ClipboardPaste className="mr-2 h-4 w-4" />
+                <span>Paste from Clipboard</span>
+              </CommandItem>
               <CommandItem onSelect={() => runCommand(handleCopy)} disabled={isLoading || !cleanedText.trim()}>
                 <Copy className="mr-2 h-4 w-4" />
                 <span>Copy Cleaned Text</span>
@@ -850,6 +899,10 @@ export default function TextifyPage() {
               <CommandItem onSelect={() => runCommand(handleRevert)} disabled={!lastClean}>
                 <Undo2 className="mr-2 h-4 w-4" />
                 <span>Undo Last Clean</span>
+              </CommandItem>
+              <CommandItem onSelect={() => runCommand(handleClearAll)} disabled={!originalText.trim() && !cleanedText.trim()}>
+                <XCircle className="mr-2 h-4 w-4" />
+                <span>Clear All</span>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
