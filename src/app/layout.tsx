@@ -31,7 +31,7 @@ export default function RootLayout({
           defaultTheme="system"
           enableSystem
           disableTransitionOnChange
-          themes={['light', 'dark', 'minimal', 'ocean', 'forest', 'gradient', 'glass']}
+          themes={['light', 'dark', 'minimal', 'ocean', 'forest', 'gradient', 'glass', 'contrast']}
         >
           <a href="#main-content" className="sr-only focus:not-sr-only focus:absolute focus:z-50 focus:top-2 focus:left-2 focus:px-4 focus:py-2 bg-background text-foreground border rounded-md">
             Skip to main content

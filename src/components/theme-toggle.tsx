@@ -2,7 +2,7 @@
 "use client"
 
 import * as React from "react"
-import { Moon, Sun, Brush, Droplets, Trees, Palette, GlassWater } from "lucide-react"
+import { Moon, Sun, Brush, Droplets, Trees, Palette, GlassWater, Contrast } from "lucide-react"
 import { useTheme } from "next-themes"
 
 import { Button } from "@/components/ui/button"
@@ -60,9 +60,11 @@ export function ThemeToggle() {
            <GlassWater className="mr-2 h-4 w-4" />
            <span>Glass</span>
         </DropdownMenuItem>
+        <DropdownMenuItem onClick={() => setTheme("contrast")}>
+           <Contrast className="mr-2 h-4 w-4" />
+           <span>High Contrast</span>
+        </DropdownMenuItem>
       </DropdownMenuContent>
     </DropdownMenu>
   )
 }
-
-    

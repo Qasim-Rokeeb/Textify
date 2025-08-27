@@ -40,7 +40,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2, ClipboardPaste, XCircle, UploadCloud } from "lucide-react";
+import { Copy, Loader2, Sparkles, Sun, Moon, Command as CommandIcon, Undo2, Check, ChevronsUpDown, Brush, Droplets, Trees, Palette, GlassWater, Link2Off, CaseLower, Type, ListOrdered, Regex, Replace, CaseSensitive, FileDown, FileText, Share2, ClipboardPaste, XCircle, UploadCloud, Contrast } from "lucide-react";
 import { BeforeAfterSlider } from "@/components/ui/before-after-slider";
 import { ThemeToggle } from "@/components/theme-toggle";
 import {
@@ -119,6 +119,34 @@ export default function TextifyPage() {
     }
   }, [lastClean, toast]);
 
+  const handlePasteFromClipboard = useCallback(async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        setOriginalText(text);
+        if (autoCleanOnPaste) {
+           setTimeout(() => handleCleanText(), 50);
+        }
+        toast({
+          title: "Pasted from clipboard",
+          description: "The text has been pasted into the original text field.",
+        });
+        setScreenReaderMessage("Text pasted from clipboard.");
+        originalTextRef.current?.focus();
+      } else {
+         throw new Error("Clipboard API not supported");
+      }
+    } catch (error) {
+      console.error("Failed to read clipboard contents: ", error);
+      toast({
+        title: "Error",
+        description: "Failed to paste text from clipboard. Your browser might not support it or you need to grant permission.",
+        variant: "destructive",
+      });
+      setScreenReaderMessage("Failed to paste from clipboard.");
+    }
+  }, [autoCleanOnPaste, toast]);
+
   const handleCleanText = useCallback(async (isReplace: boolean = false) => {
     if (!originalText.trim() || isLoading) {
       if (!originalText.trim()) {
@@ -165,34 +193,6 @@ export default function TextifyPage() {
       setIsLoading(false);
     }
   }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern, regexReplace, caseSensitive]);
-
-  const handlePasteFromClipboard = useCallback(async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.readText) {
-        const text = await navigator.clipboard.readText();
-        setOriginalText(text);
-        if (autoCleanOnPaste) {
-           setTimeout(() => handleCleanText(), 50);
-        }
-        toast({
-          title: "Pasted from clipboard",
-          description: "The text has been pasted into the original text field.",
-        });
-        setScreenReaderMessage("Text pasted from clipboard.");
-        originalTextRef.current?.focus();
-      } else {
-         throw new Error("Clipboard API not supported");
-      }
-    } catch (error) {
-      console.error("Failed to read clipboard contents: ", error);
-      toast({
-        title: "Error",
-        description: "Failed to paste text from clipboard. Your browser might not support it or you need to grant permission.",
-        variant: "destructive",
-      });
-      setScreenReaderMessage("Failed to paste from clipboard.");
-    }
-  }, [autoCleanOnPaste, handleCleanText, toast]);
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -1145,6 +1145,10 @@ export default function TextifyPage() {
                 <GlassWater className="mr-2 h-4 w-4" />
                 <span>Glass</span>
               </CommandItem>
+              <CommandItem onSelect={() => runCommand(() => setTheme("contrast"))}>
+                <Contrast className="mr-2 h-4 w-4" />
+                <span>High Contrast</span>
+              </CommandItem>
             </CommandGroup>
           </CommandList>
         </CommandDialog>
@@ -1191,5 +1195,3 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
-
-    
