@@ -10,7 +10,7 @@ Not just for formatting but for focuing on what matters.  prompt, copy and forma
 - **Copy to Clipboard**: Easily copy the cleaned text with one click.
 - **Responsive Design**: A seamless experience across desktop and mobile devices.
 - **Loading State**: A skeleton loader provides visual feedback while the text is being cleaned.
-- **Adding more features soon, anticipate and be ready**
+- **More updates coming soon**
 - **Adding more features soon, anticipate and be ready**
 
 ## Tech Stack
