@@ -253,6 +253,7 @@ export default function TextifyPage() {
       setDiff(result.diff);
       setShowSlider(true);
       setScreenReaderMessage("Text cleaning complete.");
+      setTimeout(() => cleanedTextRef.current?.focus(), 0);
     } catch (error) {
       console.error("Error cleaning text:", error);
       toast({
@@ -519,7 +520,9 @@ export default function TextifyPage() {
   const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    setIsDraggingOver(false);
+    if (e.target === cardRef.current) {
+        setIsDraggingOver(false);
+    }
   };
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -546,7 +549,7 @@ export default function TextifyPage() {
           onDrop={onDrop}
         >
           <Collapsible open={isHeaderOpen} onOpenChange={setIsHeaderOpen}>
-            <header className={cn("text-center mb-8 relative", theme === 'glass' && 'sticky top-0 z-10 py-4 glass-header')}>
+            <header className={cn("text-center mb-8 relative", "theme-glass" === theme && 'sticky top-0 z-10 py-4 glass-header')}>
               <div className="flex justify-center items-center gap-2">
                   <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
                     Textify
@@ -620,7 +623,8 @@ export default function TextifyPage() {
                           <div
                             id="cleaned-text"
                             ref={cleanedTextRef}
-                            className="flex-grow resize-none bg-muted/50 font-sans rounded-md border border-input p-2 text-base break-words whitespace-pre-wrap overflow-y-auto"
+                            tabIndex={-1}
+                            className="flex-grow resize-none bg-muted/50 font-sans rounded-md border border-input p-2 text-base break-words whitespace-pre-wrap overflow-y-auto focus:outline-none focus:ring-2 focus:ring-ring"
                            >
                             {diff.length > 0 ? (
                               <>
@@ -1118,5 +1122,3 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
-
-    
