@@ -98,107 +98,6 @@ export default function TextifyPage() {
   const cardRef = useRef<HTMLDivElement>(null);
 
 
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        setOpenCommand((open) => !open);
-      }
-      if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        handleRevert();
-      }
-       if (e.key === "v" && (e.metaKey || e.ctrlKey)) {
-        e.preventDefault();
-        handlePasteFromClipboard();
-      }
-      if (e.key === "Escape" && useRegex) {
-        e.preventDefault();
-        setUseRegex(false);
-      }
-      if (e.key === "Tab" && useRegex && findBarRef.current) {
-        const focusableElements = Array.from(
-          findBarRef.current.querySelectorAll<HTMLElement>(
-            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
-          )
-        ).filter(el => el.offsetParent !== null); // Ensure element is visible
-
-        if (focusableElements.length === 0) return;
-
-        const firstElement = focusableElements[0];
-        const lastElement = focusableElements[focusableElements.length - 1];
-        const currentFocusIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
-
-        if (e.shiftKey) {
-          // Shift + Tab
-          if (document.activeElement === firstElement || currentFocusIndex === -1) {
-            e.preventDefault();
-            lastElement.focus();
-          }
-        } else {
-          // Tab
-          if (document.activeElement === lastElement || currentFocusIndex === -1) {
-            e.preventDefault();
-            firstElement.focus();
-          }
-        }
-      }
-    };
- 
-    document.addEventListener("keydown", handleKeyDown);
-    return () => document.removeEventListener("keydown", handleKeyDown);
-  }, [useRegex, lastClean]);
-
-  useEffect(() => {
-    setCurrentYear(new Date().getFullYear());
-  }, []);
-
-  useEffect(() => {
-    if (useRegex && regexPattern && originalText) {
-      try {
-        const regex = new RegExp(regexPattern, caseSensitive ? 'g' : 'gi');
-        const matches = originalText.match(regex);
-        setMatchCount(matches ? matches.length : 0);
-      } catch (e) {
-        setMatchCount(0); // Invalid regex
-      }
-    } else {
-      setMatchCount(0);
-    }
-  }, [originalText, regexPattern, useRegex, caseSensitive]);
-
-  useEffect(() => {
-    const handleHashChange = () => {
-      try {
-        if (window.location.hash.startsWith("#/s/")) {
-          const encodedText = window.location.hash.substring(4);
-          const decodedText = atob(encodedText);
-          setOriginalText(decodedText);
-          setCleanedText(decodedText);
-          setDiff([{ value: decodedText, added: false, removed: false }]);
-          setShowSlider(true);
-          // Clear the hash to avoid re-processing if user cleans again
-          history.replaceState(null, "", " ");
-        }
-      } catch (error) {
-        console.error("Failed to decode text from URL hash:", error);
-        toast({
-          title: "Error",
-          description: "Could not load text from the URL.",
-          variant: "destructive",
-        });
-      }
-    };
-  
-    handleHashChange();
-    window.addEventListener("hashchange", handleHashChange);
-  
-    return () => {
-      window.removeEventListener("hashchange", handleHashChange);
-    };
-  }, [toast]);
-
-
   const handleRevert = useCallback(() => {
     if (lastClean) {
       setOriginalText(lastClean.originalText);
@@ -266,6 +165,135 @@ export default function TextifyPage() {
       setIsLoading(false);
     }
   }, [originalText, cleanedText, diff, isLoading, toast, removeEmojis, normalizeQuotes, trimTrailingSpaces, convertToLowercase, convertToSentenceCase, removeUrls, removeLineNumbers, useRegex, regexPattern, regexReplace, caseSensitive]);
+
+  const handlePasteFromClipboard = useCallback(async () => {
+    try {
+      if (navigator.clipboard && navigator.clipboard.readText) {
+        const text = await navigator.clipboard.readText();
+        setOriginalText(text);
+        if (autoCleanOnPaste) {
+           setTimeout(() => handleCleanText(), 50);
+        }
+        toast({
+          title: "Pasted from clipboard",
+          description: "The text has been pasted into the original text field.",
+        });
+        setScreenReaderMessage("Text pasted from clipboard.");
+        originalTextRef.current?.focus();
+      } else {
+         throw new Error("Clipboard API not supported");
+      }
+    } catch (error) {
+      console.error("Failed to read clipboard contents: ", error);
+      toast({
+        title: "Error",
+        description: "Failed to paste text from clipboard. Your browser might not support it or you need to grant permission.",
+        variant: "destructive",
+      });
+      setScreenReaderMessage("Failed to paste from clipboard.");
+    }
+  }, [autoCleanOnPaste, handleCleanText, toast]);
+
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        setOpenCommand((open) => !open);
+      }
+      if (e.key === "z" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handleRevert();
+      }
+       if (e.key === "v" && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        handlePasteFromClipboard();
+      }
+      if (e.key === "Escape" && useRegex) {
+        e.preventDefault();
+        setUseRegex(false);
+      }
+      if (e.key === "Tab" && useRegex && findBarRef.current) {
+        const focusableElements = Array.from(
+          findBarRef.current.querySelectorAll<HTMLElement>(
+            'button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])'
+          )
+        ).filter(el => el.offsetParent !== null); // Ensure element is visible
+
+        if (focusableElements.length === 0) return;
+
+        const firstElement = focusableElements[0];
+        const lastElement = focusableElements[focusableElements.length - 1];
+        const currentFocusIndex = focusableElements.indexOf(document.activeElement as HTMLElement);
+
+        if (e.shiftKey) {
+          // Shift + Tab
+          if (document.activeElement === firstElement || currentFocusIndex === -1) {
+            e.preventDefault();
+            lastElement.focus();
+          }
+        } else {
+          // Tab
+          if (document.activeElement === lastElement || currentFocusIndex === -1) {
+            e.preventDefault();
+            firstElement.focus();
+          }
+        }
+      }
+    };
+ 
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, [useRegex, handleRevert, handlePasteFromClipboard]);
+
+  useEffect(() => {
+    setCurrentYear(new Date().getFullYear());
+  }, []);
+
+  useEffect(() => {
+    if (useRegex && regexPattern && originalText) {
+      try {
+        const regex = new RegExp(regexPattern, caseSensitive ? 'g' : 'gi');
+        const matches = originalText.match(regex);
+        setMatchCount(matches ? matches.length : 0);
+      } catch (e) {
+        setMatchCount(0); // Invalid regex
+      }
+    } else {
+      setMatchCount(0);
+    }
+  }, [originalText, regexPattern, useRegex, caseSensitive]);
+
+  useEffect(() => {
+    const handleHashChange = () => {
+      try {
+        if (window.location.hash.startsWith("#/s/")) {
+          const encodedText = window.location.hash.substring(4);
+          const decodedText = atob(encodedText);
+          setOriginalText(decodedText);
+          setCleanedText(decodedText);
+          setDiff([{ value: decodedText, added: false, removed: false }]);
+          setShowSlider(true);
+          // Clear the hash to avoid re-processing if user cleans again
+          history.replaceState(null, "", " ");
+        }
+      } catch (error) {
+        console.error("Failed to decode text from URL hash:", error);
+        toast({
+          title: "Error",
+          description: "Could not load text from the URL.",
+          variant: "destructive",
+        });
+      }
+    };
+  
+    handleHashChange();
+    window.addEventListener("hashchange", handleHashChange);
+  
+    return () => {
+      window.removeEventListener("hashchange", handleHashChange);
+    };
+  }, [toast]);
+
 
   const handleCopy = () => {
     if (!cleanedText) return;
@@ -410,7 +438,7 @@ export default function TextifyPage() {
     const wordsPerMinute = 200;
     const minutes = wordCount / wordsPerMinute;
     const readTime = Math.ceil(minutes);
-    if (readTime < 1) return "< 1 min read";
+    if (readTime < 1) return "&lt; 1 min read";
     return `${readTime} min read`;
   };
 
@@ -450,34 +478,6 @@ export default function TextifyPage() {
       description: "Both text fields have been cleared.",
     });
     setScreenReaderMessage("Both text fields cleared.");
-  };
-
-  const handlePasteFromClipboard = async () => {
-    try {
-      if (navigator.clipboard && navigator.clipboard.readText) {
-        const text = await navigator.clipboard.readText();
-        setOriginalText(text);
-        if (autoCleanOnPaste) {
-           setTimeout(() => handleCleanText(), 50);
-        }
-        toast({
-          title: "Pasted from clipboard",
-          description: "The text has been pasted into the original text field.",
-        });
-        setScreenReaderMessage("Text pasted from clipboard.");
-        originalTextRef.current?.focus();
-      } else {
-         throw new Error("Clipboard API not supported");
-      }
-    } catch (error) {
-      console.error("Failed to read clipboard contents: ", error);
-      toast({
-        title: "Error",
-        description: "Failed to paste text from clipboard. Your browser might not support it or you need to grant permission.",
-        variant: "destructive",
-      });
-      setScreenReaderMessage("Failed to paste from clipboard.");
-    }
   };
 
   const handleFileDrop = (file: File) => {
@@ -520,9 +520,11 @@ export default function TextifyPage() {
   const onDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
-    if (e.target === cardRef.current) {
-        setIsDraggingOver(false);
+    // Check if the leave event is not triggered by a child element
+    if (e.currentTarget.contains(e.relatedTarget as Node)) {
+      return;
     }
+    setIsDraggingOver(false);
   };
   const onDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
@@ -581,10 +583,13 @@ export default function TextifyPage() {
                     <Button variant="outline" onClick={() => setOpenCommand(true)} className="gap-2">
                       <CommandIcon className="h-4 w-4" />
                       <span className="hidden sm:inline">Commands</span>
+                      <kbd className="pointer-events-none hidden h-5 select-none items-center gap-1 rounded border bg-muted px-1.5 font-mono text-[10px] font-medium opacity-100 sm:flex">
+                        <span className="text-xs">⌘</span>K
+                      </kbd>
                     </Button>
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Open command menu (Ctrl+K)</p>
+                    <p>Open command menu</p>
                   </TooltipContent>
                 </Tooltip>
                 <ThemeToggle />
@@ -703,42 +708,87 @@ export default function TextifyPage() {
             </CardContent>
             <CardFooter className="flex flex-col items-start gap-4 p-4 border-t">
               <div className="w-full grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-x-4 gap-y-2">
-                <div className="flex items-center space-x-2">
-                  <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
-                  <Label htmlFor="auto-clean">Auto-clean</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="remove-emojis" checked={removeEmojis} onCheckedChange={setRemoveEmojis} />
-                  <Label htmlFor="remove-emojis">Remove Emojis</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="normalize-quotes" checked={normalizeQuotes} onCheckedChange={setNormalizeQuotes} />
-                  <Label htmlFor="normalize-quotes">Normalize Quotes</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="trim-trailing-spaces" checked={trimTrailingSpaces} onCheckedChange={setTrimTrailingSpaces} />
-                  <Label htmlFor="trim-trailing-spaces">Trim Spaces</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="convert-to-lowercase" checked={convertToLowercase} onCheckedChange={setConvertToLowercase} />
-                  <Label htmlFor="convert-to-lowercase">Lowercase</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="convert-to-sentence-case" checked={convertToSentenceCase} onCheckedChange={setConvertToSentenceCase} />
-                  <Label htmlFor="convert-to-sentence-case">Sentence Case</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="remove-urls" checked={removeUrls} onCheckedChange={setRemoveUrls} />
-                  <Label htmlFor="remove-urls">Remove URLs</Label>
-                </div>
-                 <div className="flex items-center space-x-2">
-                  <Switch id="remove-line-numbers" checked={removeLineNumbers} onCheckedChange={setRemoveLineNumbers} />
-                  <Label htmlFor="remove-line-numbers">Remove Lines</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Switch id="use-regex" checked={useRegex} onCheckedChange={setUseRegex} />
-                  <Label htmlFor="use-regex">Use Regex</Label>
-                </div>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="auto-clean" checked={autoCleanOnPaste} onCheckedChange={setAutoCleanOnPaste} />
+                    <Label htmlFor="auto-clean">Auto-clean</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Automatically clean text on paste.</p>
+                  </TooltipContent>
+                </Tooltip>
+                 <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="remove-emojis" checked={removeEmojis} onCheckedChange={setRemoveEmojis} />
+                    <Label htmlFor="remove-emojis">Remove Emojis</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Remove all emojis from the text.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="normalize-quotes" checked={normalizeQuotes} onCheckedChange={setNormalizeQuotes} />
+                    <Label htmlFor="normalize-quotes">Normalize Quotes</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Convert curly quotes to straight quotes.</p>
+                  </TooltipContent>
+                </Tooltip>
+                 <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="trim-trailing-spaces" checked={trimTrailingSpaces} onCheckedChange={setTrimTrailingSpaces} />
+                    <Label htmlFor="trim-trailing-spaces">Trim Spaces</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Trim trailing whitespace from each line.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="convert-to-lowercase" checked={convertToLowercase} onCheckedChange={setConvertToLowercase} />
+                    <Label htmlFor="convert-to-lowercase">Lowercase</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Convert the entire text to lowercase.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="convert-to-sentence-case" checked={convertToSentenceCase} onCheckedChange={setConvertToSentenceCase} />
+                    <Label htmlFor="convert-to-sentence-case">Sentence Case</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Convert the text to sentence case.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="remove-urls" checked={removeUrls} onCheckedChange={setRemoveUrls} />
+                    <Label htmlFor="remove-urls">Remove URLs</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Remove all URLs from the text.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="remove-line-numbers" checked={removeLineNumbers} onCheckedChange={setRemoveLineNumbers} />
+                    <Label htmlFor="remove-line-numbers">Remove Lines</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Remove line numbers from the start of each line.</p>
+                  </TooltipContent>
+                </Tooltip>
+                <Tooltip>
+                  <TooltipTrigger className="flex items-center space-x-2">
+                    <Switch id="use-regex" checked={useRegex} onCheckedChange={setUseRegex} />
+                    <Label htmlFor="use-regex">Use Regex</Label>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Use regular expressions to find and replace text.</p>
+                  </TooltipContent>
+                </Tooltip>
               </div>
                {useRegex && (
                 <div ref={findBarRef} className="w-full flex flex-col sm:flex-row gap-2 items-center pt-2">
@@ -756,10 +806,15 @@ export default function TextifyPage() {
                     onChange={(e) => setRegexReplace(e.target.value)}
                     className="w-full sm:w-auto flex-grow"
                   />
-                    <div className="flex items-center space-x-2">
-                    <Switch id="case-sensitive" checked={caseSensitive} onCheckedChange={setCaseSensitive} />
-                    <Label htmlFor="case-sensitive">Case-Sensitive</Label>
-                  </div>
+                    <Tooltip>
+                      <TooltipTrigger className="flex items-center space-x-2">
+                        <Switch id="case-sensitive" checked={caseSensitive} onCheckedChange={setCaseSensitive} />
+                        <Label htmlFor="case-sensitive">Case-Sensitive</Label>
+                      </TooltipTrigger>
+                      <TooltipContent>
+                        <p>Make the regex pattern case-sensitive.</p>
+                      </TooltipContent>
+                    </Tooltip>
                     {regexPattern && (
                       <Badge variant="secondary" className="whitespace-nowrap">
                           {matchCount} {matchCount === 1 ? 'match' : 'matches'}
@@ -842,7 +897,7 @@ export default function TextifyPage() {
                       </Button>
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p>Removes markdown symbols like #, *, etc.</p>
+                      <p>Removes markdown symbols like #, *, etc. (Ctrl+Enter)</p>
                     </TooltipContent>
                   </Tooltip>
                 )}
@@ -861,7 +916,7 @@ export default function TextifyPage() {
                             </DropdownMenuTrigger>
                         </TooltipTrigger>
                         <TooltipContent>
-                            <p>Export cleaned text.</p>
+                            <p>Export cleaned text as a file.</p>
                         </TooltipContent>
                     </Tooltip>
                     <DropdownMenuContent>
@@ -942,7 +997,7 @@ export default function TextifyPage() {
             </a>
           </p>
           <p className="mt-2">
-              &copy; {currentYear} Textify. Built by <b>Qasim Rokeeb</b>.
+              &copy; {currentYear} Textify. Built by &lt;b&gt;Qasim Rokeeb&lt;/b&gt;.
           </p>
         </footer>
       </main>
@@ -1022,8 +1077,8 @@ export default function TextifyPage() {
               </CommandItem>
               <CommandItem onSelect={() => runCommand(() => setConvertToSentenceCase(!convertToSentenceCase))}>
                  <div className="flex items-center">
-                    <Switch className="mr-2" checked={convertToSentenceCase} />
                     <Type className="mr-2 h-4 w-4" />
+                    <Switch className="mr-2" checked={convertToSentenceCase} />
                     <span>Convert to Sentence Case</span>
                  </div>
               </CommandItem>
@@ -1117,7 +1172,7 @@ export default function TextifyPage() {
       <AlertDialog open={showCopyConfirm} onOpenChange={setShowCopyConfirm}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Preview & Confirm Copy</AlertDialogTitle>
+            <AlertDialogTitle>Preview &amp; Confirm Copy</AlertDialogTitle>
             <AlertDialogDescription>
               Please review the cleaned text below before copying.
             </AlertDialogDescription>
@@ -1136,3 +1191,5 @@ export default function TextifyPage() {
     </TooltipProvider>
   );
 }
+
+    
