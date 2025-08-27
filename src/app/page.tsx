@@ -294,6 +294,15 @@ export default function TextifyPage() {
     };
   }, [toast]);
 
+  useEffect(() => {
+    if (theme) {
+      const themeName = theme.charAt(0).toUpperCase() + theme.slice(1);
+      document.title = `Textify - ${themeName} Theme`;
+    } else {
+      document.title = 'Textify';
+    }
+  }, [theme]);
+
 
   const handleCopy = () => {
     if (!cleanedText) return;
