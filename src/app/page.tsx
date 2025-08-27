@@ -554,12 +554,19 @@ export default function TextifyPage() {
                   <h1 className="text-4xl md:text-5xl font-bold font-headline text-primary">
                     Textify
                   </h1>
-                  <CollapsibleTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8">
-                      <ChevronsUpDown className="h-5 w-5" />
-                      <span className="sr-only">Toggle header</span>
-                    </Button>
-                  </CollapsibleTrigger>
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <CollapsibleTrigger asChild>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <ChevronsUpDown className="h-5 w-5" />
+                          <span className="sr-only">Toggle header</span>
+                        </Button>
+                      </CollapsibleTrigger>
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p>Toggle header visibility</p>
+                    </TooltipContent>
+                  </Tooltip>
               </div>
 
               <CollapsibleContent>
@@ -569,10 +576,17 @@ export default function TextifyPage() {
               </CollapsibleContent>
 
               <div className="absolute top-0 right-0 flex items-center gap-2 pt-4">
-                <Button variant="outline" onClick={() => setOpenCommand(true)} className="gap-2">
-                  <CommandIcon className="h-4 w-4" />
-                  <span className="hidden sm:inline">Commands</span>
-                </Button>
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Button variant="outline" onClick={() => setOpenCommand(true)} className="gap-2">
+                      <CommandIcon className="h-4 w-4" />
+                      <span className="hidden sm:inline">Commands</span>
+                    </Button>
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p>Open command menu (Ctrl+K)</p>
+                  </TooltipContent>
+                </Tooltip>
                 <ThemeToggle />
               </div>
             </header>
