@@ -19,8 +19,6 @@ This project is built with a modern tech stack:
 - **Framework**: [Next.js](https://nextjs.org/) (with App Router)
 - **Language**: [TypeScript](https://www.typescriptlang.org/)
 - **UI**: [React](https://react.dev/)
-- **Styling**: [Tailwind CSS](https://tailwindcss.com/)
-
 - **AI/Backend**: [Genkit (Firebase)](https://firebase.google.com/docs/genkit)
 
 
