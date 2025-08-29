@@ -551,7 +551,7 @@ export default function TextifyPage() {
       <div aria-live="polite" className="sr-only">
         {screenReaderMessage}
       </div>
-      <main id="main-content" className="flex flex-col items-center min-h-screen bg-background p-4 sm:p-6 lg:p-8">
+      <main id="main-content" className="flex flex-col items-center min-h-screen bg-background p-4 sm:p-6 lg:p-8 animate-fade-in">
         <div 
           className="w-full max-w-6xl mx-auto"
           onDragEnter={onDragEnter}
